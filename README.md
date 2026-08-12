@@ -1,2 +1,13 @@
-# TP-AyED-UTN-2026
-Trabajo Práctico Integradorf de Algoritmos K1024
+# Trabajo Práctico Integrador de Algoritmos K1024
+
+## Información General
+
+### Integrantes y que programa hizo cada uno
+
+* **Erik Burs**: x.cpp
+* **Erik Burs**: x.cpp
+* **Erik Burs**: x.cpp
+* **Erik Burs**: x.cpp
+
+## Como Compilar y ejecutar los programas en órden
+
