@@ -1,5 +1,11 @@
+# C++ Compiler generated files
+/normalizacion
+/ventas
+/cierre
+/resumen
+
 # Compiled data files
-*.dat
+/*.dat
 
 # Prerequisites
 *.d
