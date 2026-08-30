@@ -6,7 +6,7 @@
 
 * **Erik Burs**: x.cpp
 * **Erik Burs**: x.cpp
-* **Erik Burs**: x.cpp
+* **Britany Leon**: x.cpp
 * **Espinola Ingrid**: x.cpp
 
 ## Como Compilar y ejecutar los programas en órden
