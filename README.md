@@ -3,12 +3,12 @@
 Trabajo Práctico grupal de **Algoritmos y Estructuras de Datos** (UTN FRBA) —
 unidad de **archivos binarios en C/C++**.
 
-> **Grupo:** _(completar: número de grupo)_
-> **Integrantes:** _(nombre — usuario de GitHub, uno por línea)_
+> **Grupo:1**
+> **Integrantes:** 
 > Burs Erik - erikor12 - resumen.cpp
-> Fernandez Milagros - gituser - cierre.cpp
-> Leon Britany - Brit019 - ventas.cpp
 > Espinola Ingrid - Voyager1987 - normalizacion.cpp
+> Fernandez Milagros - lulifernandez1217 - cierre.cpp
+> Leon Britany - Brit019 - ventas.cpp
 
 La consigna completa está en **`enunciado.pdf`**. Leela antes de arrancar: el
 cliente (Alberto) cuenta su problema a su manera y ustedes tienen que descubrir
