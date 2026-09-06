@@ -9,7 +9,7 @@ unidad de **archivos binarios en C/C++**.
 > Espinola Ingrid - Voyager1987 - normalizacion.cpp
 > Fernandez Milagros - lulifernandez1217 - cierre.cpp
 > Leon Britany - Brit019 - ventas.cpp
-> Nombre - gituser - file.cpp
+> Gimena Magali Cristaldo - gimenacristaldo-hub - file.cpp
 
 La consigna completa está en **`enunciado.pdf`**. Leela antes de arrancar: el
 cliente (Alberto) cuenta su problema a su manera y ustedes tienen que descubrir
