@@ -6,10 +6,11 @@ unidad de **archivos binarios en C/C++**.
 > **Grupo:1**
 > **Integrantes:** 
 > Burs Erik - erikor12 - resumen.cpp
+> Cristaldo Gimena Magali - gimenacristaldo-hub - normalizacion.cpp
 > Espinola Ingrid - Voyager1987 - normalizacion.cpp
 > Fernandez Milagros - lulifernandez1217 - cierre.cpp
 > Leon Britany - Brit019 - ventas.cpp
-> Gimena Magali Cristaldo - gimenacristaldo-hub - file.cpp
+
 
 La consigna completa está en **`enunciado.pdf`**. Leela antes de arrancar: el
 cliente (Alberto) cuenta su problema a su manera y ustedes tienen que descubrir
