@@ -5,16 +5,18 @@ using namespace std;
 
 
 //lo que nos dio la catedra para ordenar
-struct comanda_historica{
-    //los datos que nos dio la catedra
+struct ComandaHistorica{  //los datos que nos dio la catedra(ventas sistema viejo)
+   
 };
 //donde guardaremos a los mozos.dat
 struct Mozo{
 int idMozo;
-char nombre[50];
-char contraseña[20];
-float totalComision;
+char nombre [50];
+char contraseña [20];
+float totalComision =0;
 };
+//aca iria el struct de la nueva comanda historica que nos pide para ordenar
+
 
 //valor que nos dan para encriptar las clavcs(corrimiento k)
 const int clave_k=5;
@@ -30,11 +32,13 @@ i++;
 clave_destino[i]=0; //avisa que acá termina el texto
 }
 
-Mozo listaMozos[50]; //creo una lista de 50 lugares para los mozos
+Mozo listaMozos[10]; //creo una lista de 10 lugares para los mozos
 int cantidadMozos=0;
-comanda_historica registro; // aca arranca vacia
+ComandaHistorica lectura; // aca arranca vacia
 
-while(fread(&registro,sizeof(comanda_historica),1,pHist)==1){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
+FILE* archivoviejo = fopen("comandas_historicas.dat","rb");
+
+while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
     //ya se guardo este mozo en la lista?
     bool yaExiste=false;
     for(int i=0;i<cantidadMozos;i++){
@@ -47,7 +51,6 @@ while(fread(&registro,sizeof(comanda_historica),1,pHist)==1){//del archivo phist
     Mozo nuevo;
     nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc)
     strcpy(nuevo.nombre,registro.nombreMozo);//agarra el nuevo nombre y lo copia y pega
-    nuevo.totalComision=0 //inicia en 0
 
     //crea su contraseña inicial
     char clave_texto[10];
@@ -58,7 +61,10 @@ while(fread(&registro,sizeof(comanda_historica),1,pHist)==1){//del archivo phist
  cantidadMozos++;
     }
 }
-fclose(pHist); //cierro el archivo anterior
+
+//comanda nueva Eli
+
+fclose(archivoviejo); //cierro el archivo anterior
 
 //creo mozo.dat para poder escribir
 FILE*pMozos=fopen("mozos.dat","wb");
@@ -71,7 +77,7 @@ for (int i = 0; i < cantidadMozos; i++) {
     }
     fclose(pMozos);
 
-    cout <<"se guardo con correctamente"<<cantidadMozos<<" mozos en mozos.dat" << endl;
+    cout <<"se guardo correctamente"<<cantidadMozos<<" mozos en mozos.dat" << endl;
     return true;
 }
 
