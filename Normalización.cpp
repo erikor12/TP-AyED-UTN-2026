@@ -5,9 +5,15 @@ using namespace std;
 
 
 //lo que nos dio la catedra para ordenar
-struct comanda_historica{
-    //los datos que nos dio la catedra
+struct Comanda_Historica{
+    //los datos que nos dio la catedra - Struct completado, nombre en mayus -Eli
+    char fecha[11];
+    char nombreMozo[50];
+    int codigoProducto;
+    int cantidad;
+    float comision;
 };
+
 //donde guardaremos a los mozos.dat
 struct Mozo{
 int idMozo;
