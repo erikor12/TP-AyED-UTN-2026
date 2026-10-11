@@ -12,10 +12,11 @@ int main() {
         printf ("Error al leer la fecha.\n");
         return 1;
     }
-    printf ("Ingrese el nombre del archivo: ");
-    if (scanf ("%39s", nombreArchivo) != 1) {
-        printf ("Error al leer el nombre del archivo.\n");
-        return 1;
-    }
-    return 0;
+   sprintf(nombreArchivo,"comandas_%s.dat", fecha);
+   File *Inventario=fopen ("Inventario.dat", "rb+");
+   if (Inventario==NULL){
+    printf("No se pudo abrir inventario.dat\n");
+    return 1;
+   }
+   
 }
