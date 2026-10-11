@@ -18,5 +18,17 @@ int main() {
     printf("No se pudo abrir inventario.dat\n");
     return 1;
    }
-   
+   int continuar=1;
+   while(continuar==1) {
+    int numeroMozo;
+    int codigoProducto;
+    int cantidad;
+    printf ("\n===Nueva Venta====\n");
+    printf ("Numero de Mozo: ");
+    scanf ("%d", &numeroMozo);
+    printf ("Codigo de Producto: ");
+    scanf ("%d", &codigoProducto);
+    printf ("Cantidad: ");  
+    
+   }
 }
