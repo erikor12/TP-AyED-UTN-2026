@@ -5,8 +5,14 @@ using namespace std;
 
 
 //lo que nos dio la catedra para ordenar
-struct comanda_historica{
-    //los datos que nos dio la catedra
+struct ComandaHistorica{ //Mayusculas -eli
+    //los datos que nos dio la catedra * eli rellenó 
+    char fecha[11];
+    char nombreMozo[50];
+    int codigoProducto;
+    int cantidad;
+    float comision;
+
 };
 
 //donde guardaremos a los mozos.dat
@@ -16,10 +22,15 @@ char nombre [50];
 char contraseña [20];
 float totalComision =0;
 };
-//aca iria el struct de la nueva comanda historica que nos pide para ordenar
+//aca iria el struct de la nueva comanda historica que nos pide para ordenar* Listo
+struct Comanda {
+    int idMozo;
+    int codigoProducto;
+    int cantidad;
+    float comision;
+};
 
-
-//valor que nos dan para encriptar las clavcs(corrimiento k)
+//valor que nos dan para encriptar las claves(corrimiento k)
 const int clave_k=5;
 
 //funcion que toma el texto y le suma 5
@@ -33,9 +44,12 @@ i++;
 clave_destino[i]=0; //avisa que acá termina el texto
 }
 
+/* No solo creamos la lista de mozos, también creamos la función -eli
+Bool porque Gimena más adelante retorna true o false - eli */
+bool crearArchivoMozos() {
 Mozo listaMozos[10]; //creo una lista de 10 lugares para los mozos
 int cantidadMozos=0;
-ComandaHistorica lectura; // aca arranca vacia
+ComandaHistorica comandaLeida; // aca arranca vacia
 
 FILE* archivoviejo = fopen("comandas_historicas.dat","rb");
 
@@ -43,7 +57,8 @@ while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phi
     //ya se guardo este mozo en la lista?
     bool yaExiste=false;
     for(int i=0;i<cantidadMozos;i++){
-        if(strcpm(listaMozos[i].nombre,registro.nombreMozo)==0){
+        if(strcmp(listaMozos[i].nombre, comandaLeida.nombreMozo)==0){
+             /*strcpm no existe! registro tampoco, declaraste "lectura" (Lo voy a cambiar por comandaLeída) - eli*/ 
             yaExiste=true;
         }
         }
@@ -51,11 +66,11 @@ while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phi
     if(!yaExiste){
     Mozo nuevo;
     nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc)
-    strcpy(nuevo.nombre,registro.nombreMozo);//agarra el nuevo nombre y lo copia y pega
+    strcpy(nuevo.nombre, comandaLeida.nombreMozo);//agarra el nuevo nombre y lo copia y pega
 
     //crea su contraseña inicial
     char clave_texto[10];
-    sprintf(clave_texto,nuevo.idMozo);
+    sprintf(clave_texto, nuevo.idMozo);
     encriptarClave(clave_texto,nuevo.contraseña,clave_k);//nro de idMozo guardado en la variable
 
  listaMozos[cantidadMozos]=nuevo;
@@ -63,7 +78,7 @@ while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phi
     }
 }
 
-//comanda nueva Eli
+
 
 fclose(archivoviejo); //cierro el archivo anterior
 
