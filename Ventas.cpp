@@ -29,6 +29,31 @@ int main() {
     printf ("Codigo de Producto: ");
     scanf ("%d", &codigoProducto);
     printf ("Cantidad: ");  
-    
+
+   }
+   Producto producto;
+   rewind (Inventario);
+   int encontrado=0;
+   while (fread (&producto,sizeof(Producto),1,inventario)==1) {
+    if (producto.codigo==codigoProducto) {
+        encontrado=1
+        break;
+    }
+   }
+   if (!encontrado) {
+    printf("El producto no existe en el inventario.\n");
+   } else {
+    printf ("Producto:%s\n", producto.descripcion);
+    printf ("Precio:%.2f\n",producto.precio);
+    printf ("Stock disponible:%d\n", producto.stock);
+
+    printf ("Cantidad:");
+    scanf ("%d",&cantidad);
+    if (cantidad<=0) { 
+        printf ("La cantidad debe ser mayor a cero.\n");
+    } else if (cantidad>producto.stock) {
+        printf ("No hay stock suficiente.\n");
+    }
+   }
    }
 }
