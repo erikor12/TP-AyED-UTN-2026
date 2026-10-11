@@ -53,7 +53,26 @@ int main() {
         printf ("La cantidad debe ser mayor a cero.\n");
     } else if (cantidad>producto.stock) {
         printf ("No hay stock suficiente.\n");
+    
+    } else { 
+        Venta venta;
+        
+        venta.numeroMozo=numeroMozo,
+        venta.codProducto=codigoProducto;
+        venta.cant=cantidad;
+        venta.comision=
+        producto.precio*cantidad*0.10;
+
+        producto stock -= cantidad;
+        fseek (inventario, -sizeof(Producto), seek_cur);
+        fwrite (&producto, sizeof(Producto), 1, inventario);
+
+        FILE*archivoDia= fopen (nombreArchivo, "ab");
+        if (archivoDia==NULL) { 
+            printf ("No se pudo abrir la planilla del dia.");
+            
+        }
     }
-   }
-   }
+   
+   
 }
