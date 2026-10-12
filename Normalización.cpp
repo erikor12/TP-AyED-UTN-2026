@@ -52,8 +52,13 @@ int cantidadMozos=0;
 ComandaHistorica comandaLeida; // aca arranca vacia
 
 FILE* archivoviejo = fopen("comandas_historicas.dat","rb");
+// Por si no abre el archivo -eli
+if (archivoviejo==NULL){
+    cout << "No se pudo abrir el archivo" << endl;
+    return false;
+}
 
-while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
+while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
     //ya se guardo este mozo en la lista?
     bool yaExiste=false;
     for(int i=0;i<cantidadMozos;i++){
@@ -70,7 +75,7 @@ while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phi
 
     //crea su contraseña inicial
     char clave_texto[10];
-    sprintf(clave_texto, nuevo.idMozo);
+    sprintf(clave_texto, "%d", nuevo.idMozo);
     encriptarClave(clave_texto,nuevo.contraseña,clave_k);//nro de idMozo guardado en la variable
 
  listaMozos[cantidadMozos]=nuevo;
