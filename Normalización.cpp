@@ -102,10 +102,63 @@ for (int i = 0; i < cantidadMozos; i++) {
     return true;
 }
 
+// creación fx busqueda para creación comandas/archivos .li
+
+int buscarIdMozo(const char* nombreBuscado){
+
+    FILE* archivoMozos = fopen("mozos.dat","rb"); //abro mozos.dat, lecturabin .li
+    if (archivoMozos==NULL){
+        cout << "No se pudo abrir el archivo de Mozos."<<endl;
+        return -1; //la típica .li
+    }
+
+    Mozo mozoLeido;
+    while(fread(&mozoLeido, sizeof(Mozo), 1, archivoMozos)){
+        if(strcmp(mozoLeido.nombre, nombreBuscado)==0){ //si coinciden los nombres:
+            int IdEncontrado=mozoLeido.idMozo;
+            fclose(archivoMozos);
+            return IdEncontrado;          // devuelve el id que corresponde .li
+    }
+
+    fclose(archivoMozos);
+    return -1; 
+}
+}
+
+bool crearComandasDiarias(){ //es parecido a buscarIdMozo tbh -li
+    FILE* archivoViejo = fopen("comandas_historicas.dat","rb");
+
+    if (archivoViejo == NULL){
+        cout << "No se pudo abrir el archivo de Comandas antiguo."<<endl;
+        return false;
+    }
+
+    ComandaHistorica comandaLeida;
+    while(fread(&comandaLeida, sizeof(ComandaHistorica), 1, archivoViejo)==1){
+        int idMozo = buscarIdMozo(comandaLeida.nombreMozo);
+        if(idMozo == -1){
+            cout<<"No se encontró el mozo: " <<comandaLeida.nombreMozo << endl;
+            fclose(archivoViejo);
+            return false;
+
+        }
+        
+        Comanda ComandaNueva;
+        ComandaNueva.idMozo = idMozo;
+        ComandaNueva.codigoProducto = comandaLeida.codigoProducto;
+        ComandaNueva.cantidad = comandaLeida.cantidad;
+        ComandaNueva.comision = comandaLeida.comision;
+
+        char nombreArchivo[40];
+        
+    return true;
+    }
+}
+
 int main(){
 cout<<"--INICIO DE NORMALIZACION--"<<endl;
 
 //aca van nuestras llamadas
 crearArchivoMozos();
 return 0;
-}
+}   
