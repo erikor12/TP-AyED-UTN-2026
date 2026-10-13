@@ -58,28 +58,36 @@ if (archivoviejo==NULL){
     return false;
 }
 
-while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
+while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del archivo "archivoviejo" saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
     //ya se guardo este mozo en la lista?
     bool yaExiste=false;
+ int indiceMozo=-1; //guarda la posicion si ya existe
+
     for(int i=0;i<cantidadMozos;i++){
         if(strcmp(listaMozos[i].nombre, comandaLeida.nombreMozo)==0){
              /*strcpm no existe! registro tampoco, declaraste "lectura" (Lo voy a cambiar por comandaLeída) - eli*/ 
             yaExiste=true;
+            indiceMozo=i; //verifica en que posicion de la lista está
+            break; //break porque corta el for si ya lo encontró
         }
         }
 
-    if(!yaExiste){
+    if(!yaExiste){ //SI ya existe, no se crea otro id. Solo suma la comision
+    listaMozos[indiceMozo].totalComision+= comandaLeida.comision;
+    }
+
+    else{ //Si es un mozo nuevo, ahi recien se le crea un id
     Mozo nuevo;
-    nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc)
+    nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc) - id incremental
     strcpy(nuevo.nombre, comandaLeida.nombreMozo);//agarra el nuevo nombre y lo copia y pega
-
+    nuevo.totalComision=comandaLeida.comision; //arranca con la comision de su 1er ticket
     //crea su contraseña inicial
     char clave_texto[10];
     sprintf(clave_texto, "%d", nuevo.idMozo);
     encriptarClave(clave_texto,nuevo.contraseña,clave_k);//nro de idMozo guardado en la variable
 
  listaMozos[cantidadMozos]=nuevo;
- cantidadMozos++;
+ cantidadMozos++; //la cantiaad de mozos aunmenta de uno en uno
     }
 }
 
