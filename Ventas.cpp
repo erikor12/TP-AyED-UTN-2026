@@ -125,6 +125,21 @@ int main() {
                 printf("La venta ya se guardo. Revise los archivos.\n");
                     break;
             }
+
+    //Actualizar el inventario.
+    if (fwrite(&producto, sizeof(Producto),1, Inventario)!=1) {
+        printf ("La venta ya se guardo. Revise los archivos.\n");
+        break;
+    }
+
+    if (fflush(Inventario)!=0) {
+        printf ("Error al confirmar el inventario.\n");
+        break;
+    }
+    printf("\nVenta registrada correctamente.\n");
+    printf("Comision del mozo:%.2f\n", registro.comision);
+   }
+   
         long posicion=ftell (inventario) - sizeof(Producto);
         if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
             printf ("Error al guardar venta.\n");
