@@ -18,6 +18,12 @@ int main() {
     printf("No se pudo abrir inventario.dat\n");
     return 1;
    }
+   FILE *archivoDia=fopen (nombreArchivo, "ab");
+   if (archivoDia==NULL) {
+    printf ("No se pudo abrir la planilla del dia.\n");
+    fclose (inventario);
+    return 1;
+   }
    int continuar=1;
    while(continuar==1) {
     int numeroMozo;
