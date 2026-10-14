@@ -42,3 +42,21 @@ g++ -O2 -o resumen       resumen.cpp
 ./cierre            # junta los días de la semana      ->  comandas_semana_sX-mm.dat
 ./resumen           # imprime el resumen por mozo + total del buffet
 ```
+
+## Resolución de partes claves
+
+### Normalizacion.cpp
+
+texto
+
+### Ventas.cpp
+
+texto
+
+### Cierre.cpp
+
+texto
+
+### Resumen.cpp
+
+texto
