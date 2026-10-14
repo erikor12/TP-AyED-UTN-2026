@@ -18,6 +18,12 @@ int main() {
     printf("No se pudo abrir inventario.dat\n");
     return 1;
    }
+   FILE *archivoDia=fopen (nombreArchivo, "ab");
+   if (archivoDia==NULL) {
+    printf ("No se pudo abrir la planilla del dia.\n");
+    fclose (inventario);
+    return 1;
+   }
    int continuar=1;
    while(continuar==1) {
     int numeroMozo;
@@ -25,13 +31,20 @@ int main() {
     int cantidad;
     printf ("\n===Nueva Venta====\n");
     printf ("Numero de Mozo: ");
-    scanf ("%d", &numeroMozo);
+    if (scanf ("%d", &numeroMozo)!=1) {
+        printf ("Entrada invalida para el numero de mozo.\n");
+        break;
+        
+    };
     printf ("Codigo de Producto: ");
-    scanf ("%d", &codigoProducto);
-    printf ("Cantidad: ");  
-
+    if (scanf ("%d", &codigoProducto)!=1) {
+        printf ("Entrada invalida para el codigo de producto.\n");
+        break;
+    }
+    
    }
    Producto producto;
+   int encontrado=0;
    rewind (Inventario);
    int encontrado=0;
    while (fread (&producto,sizeof(Producto),1,inventario)==1) {
@@ -48,12 +61,15 @@ int main() {
     printf ("Stock disponible:%d\n", producto.stock);
 
     printf ("Cantidad:");
-    scanf ("%d",&cantidad);
-    if (cantidad<=0) { 
+    if (scanf ("%d",&cantidad)!=1) {};
+    printf ("Cantidad invalida.\n");
+    break;
+   }
+    if (cantidad<=0) {
         printf ("La cantidad debe ser mayor a cero.\n");
-    } else if (cantidad>producto.stock) {
-        printf ("No hay stock suficiente.\n");
-    
+    } else if (cantidad>producto.stock) { 
+        printf ("No hay suficiente stock disponible.\n");
+
     } else { 
         Venta venta;
         
@@ -63,16 +79,60 @@ int main() {
         venta.comision=
         producto.precio*cantidad*0.10;
 
-        producto stock -= cantidad;
-        fseek (inventario, -sizeof(Producto), seek_cur);
-        fwrite (&producto, sizeof(Producto), 1, inventario);
+        long posicion=ftell (inventario) - sizeof(Producto);
+        if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
+            printf ("Error al guardar venta.\n");
+        } else {
 
-        FILE*archivoDia= fopen (nombreArchivo, "ab");
-        if (archivoDia==NULL) { 
-            printf ("No se pudo abrir la planilla del dia.");
-            
+        producto stock -= cantidad;
+        if (fseek (inventario, posicion, SEEK_SET)!=0) 
+        fwrite (&producto, sizeof(Producto), 1, inventario)!=1) {
+            printf ("Error al actualizar el inventario.\n");
+            printf ("La venta ya fue registrada.\n");
+        } else { 
+            fflush (inventario);
+            printf ("\nVenta registrada correctamente.\n");
+            printf ("Comision del mozo: %.2f\n", venta.comision);
+        }
         }
     }
-   
-   
 }
+ 
+printf ("\nDesea registrar otra venta? (1=Si, 0=No): ");
+if (scanf ("%d", &continuar)!=1) {
+    continuar=0; 
+}
+
+fclose (archivoDia);
+fclose (inventario);
+
+FILE *archivoDia=fopen (nombreArchivo, "rb");
+if (archivoLectura==NULL) {
+  vector <venta> ventasVector;
+  venta vtemp;
+  while (fread (&vtemp, sizeof(venta),1, archivoLectura)==1) {
+    ventasVector.push_back(vtemp);
+  }
+ 
+  fclose (archivoLectura);
+  sort (ventasVector.begin(), ventasVector.end(), [](const venta &a, const venta &b) {
+    return a.numeroMozo < b.numeroMozo;
+  });
+
+  FILE *archivoEscritura=fopen (nombreArchivo, "wb");
+  if (archivoEscritura!=NULL) {
+    for (const auto & venta; ventasVector) {
+        fwrite (&venta, sizeof(venta), 1, archivoEscritura);
+    }
+    fclose (archivoEscritura);
+  }
+}
+
+printf ("\nPlanilla del dia '%s' cerrada y ordenada correctamente.\n", nombreArchivo);
+return 0;
+
+
+    
+   
+   
+
