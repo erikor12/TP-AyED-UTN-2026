@@ -85,15 +85,54 @@ int main() {
         } else {
 
         producto stock -= cantidad;
-        fseek (inventario, -sizeof(Producto), seek_cur);
-        fwrite (&producto, sizeof(Producto), 1, inventario);
-
-        FILE*archivoDia= fopen (nombreArchivo, "ab");
-        if (archivoDia==NULL) { 
-            printf ("No se pudo abrir la planilla del dia.");
-            
+        if (fseek (inventario, posicion, SEEK_SET)!=0) 
+        fwrite (&producto, sizeof(Producto), 1, inventario)!=1) {
+            printf ("Error al actualizar el inventario.\n");
+            printf ("La venta ya fue registrada.\n");
+        } else { 
+            fflush (inventario);
+            printf ("\nVenta registrada correctamente.\n");
+            printf ("Comision del mozo: %.2f\n", venta.comision);
+        }
         }
     }
-   
-   
 }
+ 
+printf ("\nDesea registrar otra venta? (1=Si, 0=No): ");
+if (scanf ("%d", &continuar)!=1) {
+    continuar=0; 
+}
+
+fclose (archivoDia);
+fclose (inventario);
+
+FILE *archivoDia=fopen (nombreArchivo, "rb");
+if (archivoLectura==NULL) {
+  vector <venta> ventasVector;
+  venta vtemp;
+  while (fread (&vtemp, sizeof(venta),1, archivoLectura)==1) {
+    ventasVector.push_back(vtemp);
+  }
+ 
+  fclose (archivoLectura);
+  sort (ventasVector.begin(), ventasVector.end(), [](const venta &a, const venta &b) {
+    return a.numeroMozo < b.numeroMozo;
+  });
+
+  FILE *archivoEscritura=fopen (nombreArchivo, "wb");
+  if (archivoEscritura!=NULL) {
+    for (const auto & venta; ventasVector) {
+        fwrite (&venta, sizeof(venta), 1, archivoEscritura);
+    }
+    fclose (archivoEscritura);
+  }
+}
+
+printf ("\nPlanilla del dia '%s' cerrada y ordenada correctamente.\n", nombreArchivo);
+return 0;
+
+
+    
+   
+   
+
