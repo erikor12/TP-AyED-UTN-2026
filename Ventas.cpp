@@ -104,8 +104,27 @@ int main() {
         registro.comision=producto.precio*cantidad*0.10;
 
         //Guardar la venta en el historico.
-        
+        if (fwrite (&registro, sizeof(ComandaHistorica), 1, historico)!=1) {
+            printf ("Error al guardar la venta en el historico.\n");
+        break;
+        }
+        //verificar que los datos se escrbieron.
 
+        if (fflush (historico)!=0){
+            printf ("Error al guardar los datos\n");
+            printf ("Verifique el archivo historico antes de continuar.\n");
+            break;
+        
+        }
+            //Descontar la cantidad vendida.
+            producto.stockActual-=cantidad;
+
+            //Volver a la posicion de producto.
+            if (fseek(Inventario, posicion, SEEK_SET)!=0) {
+                printf("Error al posicionar el inventario.\n");
+                printf("La venta ya se guardo. Revise los archivos.\n");
+                    break;
+            }
         long posicion=ftell (inventario) - sizeof(Producto);
         if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
             printf ("Error al guardar venta.\n");
