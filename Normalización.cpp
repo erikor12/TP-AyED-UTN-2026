@@ -52,29 +52,42 @@ int cantidadMozos=0;
 ComandaHistorica comandaLeida; // aca arranca vacia
 
 FILE* archivoviejo = fopen("comandas_historicas.dat","rb");
+// Por si no abre el archivo -eli
+if (archivoviejo==NULL){
+    cout << "No se pudo abrir el archivo" << endl;
+    return false;
+}
 
-while(fread(&lectura,sizeof(ComandaHistorica),1,archivoviejo)){//del archivo phist saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
+while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del archivo "archivoviejo" saco un elemento de lo que mida en comanda_historica y guardo dentro de la variable registro
     //ya se guardo este mozo en la lista?
     bool yaExiste=false;
+ int indiceMozo=-1; //guarda la posicion si ya existe
+
     for(int i=0;i<cantidadMozos;i++){
         if(strcmp(listaMozos[i].nombre, comandaLeida.nombreMozo)==0){
              /*strcpm no existe! registro tampoco, declaraste "lectura" (Lo voy a cambiar por comandaLeída) - eli*/ 
             yaExiste=true;
+            indiceMozo=i; //verifica en que posicion de la lista está
+            break; //break porque corta el for si ya lo encontró
         }
         }
 
-    if(!yaExiste){
+    if(!yaExiste){ //SI ya existe, no se crea otro id. Solo suma la comision
+    listaMozos[indiceMozo].totalComision+= comandaLeida.comision;
+    }
+
+    else{ //Si es un mozo nuevo, ahi recien se le crea un id
     Mozo nuevo;
-    nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc)
+    nuevo.idMozo=cantidadMozos+1;//aca asigna un id(mozo1,mozo2,etc) - id incremental
     strcpy(nuevo.nombre, comandaLeida.nombreMozo);//agarra el nuevo nombre y lo copia y pega
-
+    nuevo.totalComision=comandaLeida.comision; //arranca con la comision de su 1er ticket
     //crea su contraseña inicial
     char clave_texto[10];
-    sprintf(clave_texto, nuevo.idMozo);
+    sprintf(clave_texto, "%d", nuevo.idMozo);
     encriptarClave(clave_texto,nuevo.contraseña,clave_k);//nro de idMozo guardado en la variable
 
  listaMozos[cantidadMozos]=nuevo;
- cantidadMozos++;
+ cantidadMozos++; //la cantiaad de mozos aunmenta de uno en uno
     }
 }
 
@@ -97,10 +110,63 @@ for (int i = 0; i < cantidadMozos; i++) {
     return true;
 }
 
+// creación fx busqueda para creación comandas/archivos .li
+
+int buscarIdMozo(const char* nombreBuscado){
+
+    FILE* archivoMozos = fopen("mozos.dat","rb"); //abro mozos.dat, lecturabin .li
+    if (archivoMozos==NULL){
+        cout << "No se pudo abrir el archivo de Mozos."<<endl;
+        return -1; //la típica .li
+    }
+
+    Mozo mozoLeido;
+    while(fread(&mozoLeido, sizeof(Mozo), 1, archivoMozos)){
+        if(strcmp(mozoLeido.nombre, nombreBuscado)==0){ //si coinciden los nombres:
+            int IdEncontrado=mozoLeido.idMozo;
+            fclose(archivoMozos);
+            return IdEncontrado;          // devuelve el id que corresponde .li
+    }
+
+    fclose(archivoMozos);
+    return -1; 
+}
+}
+
+bool crearComandasDiarias(){ //es parecido a buscarIdMozo tbh -li
+    FILE* archivoViejo = fopen("comandas_historicas.dat","rb");
+
+    if (archivoViejo == NULL){
+        cout << "No se pudo abrir el archivo de Comandas antiguo."<<endl;
+        return false;
+    }
+
+    ComandaHistorica comandaLeida;
+    while(fread(&comandaLeida, sizeof(ComandaHistorica), 1, archivoViejo)==1){
+        int idMozo = buscarIdMozo(comandaLeida.nombreMozo);
+        if(idMozo == -1){
+            cout<<"No se encontró el mozo: " <<comandaLeida.nombreMozo << endl;
+            fclose(archivoViejo);
+            return false;
+
+        }
+        
+        Comanda ComandaNueva;
+        ComandaNueva.idMozo = idMozo;
+        ComandaNueva.codigoProducto = comandaLeida.codigoProducto;
+        ComandaNueva.cantidad = comandaLeida.cantidad;
+        ComandaNueva.comision = comandaLeida.comision;
+
+        char nombreArchivo[40];
+        
+    return true;
+    }
+}
+
 int main(){
 cout<<"--INICIO DE NORMALIZACION--"<<endl;
 
 //aca van nuestras llamadas
 crearArchivoMozos();
 return 0;
-}
+}   
