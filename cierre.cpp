@@ -1,21 +1,12 @@
 
 /*datos claves:
-normalizacion:arma la lista de mozos con su comision(deja
-las ventas x dia con id de mozoy stock al dia(segun el prog
-viejo))
-
-ventas: pide la fecha del dia crea la planilla de ese dia.
-pide(mozo,clave) y pone(comision, precio y agrega la venta)
-de cada dia. deja ordenada por mozo.
-(comandas_dd_mm_aaaa.dat(varios)
-*/
 
 /*enunciado:junta las planillas de todos los dias de la semana
 en una sola planilla semanal,ordenada por mozo.
 entonces tenemos q generar(comandas_semana_sx-mm.dat) pero
 necesitamos leer (comandas_dd_mm_aaaa.dat(varios))*/
 
-// libreriias
+// librerias
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -30,56 +21,69 @@ struct Comanda {
   float comision;
 };
 
-/*fucion que me devuelve ordenado apareo ya que tengo ordenadas las
-planillas de los dias por mozo, enotonces podemos buscar por el idmozo
-y generar una nueva planilla ordenada con todas las ventas de la sem*/
-
-/*estructura de apareo de la catedra
-void apareo(const char* nomA, const char* nomB, const char* nomC) {
- FILE* a = fopen(nomA, "rb");
- FILE* b = fopen(nomB, "rb");
- FILE* c = fopen(nomC, "wb");
- Registro ra, rb;
- int la = fread(&ra, sizeof(Registro), 1, a);
- int lb = fread(&rb, sizeof(Registro), 1, b);
- while (la == 1 && lb == 1) { // mientras haya en AMBOS
- if (ra.clave < rb.clave) {
- fwrite(&ra, sizeof(Registro), 1, c);
- la = fread(&ra, sizeof(Registro), 1, a); // avanzo A
- } else {
- fwrite(&rb, sizeof(Registro), 1, c);
- lb = fread(&rb, sizeof(Registro), 1, b); // avanzo B
- }
- }
- while (la == 1) { // agoto A (si fue el que sobró)
- fwrite(&ra, sizeof(Registro), 1, c);
- la = fread(&ra, sizeof(Registro), 1, a);
- }
- while (lb == 1) { // agoto B
- fwrite(&rb, sizeof(Registro), 1, c);
- lb = fread(&rb, sizeof(Registro), 1, b);
- }
- fclose(a); fclose(b); fclose(c);
-}*/
+const char* TEMPORAL = "semana_tmp.dat";
 
 // declaro a los esqueletos de las funciones
-// declaro a los esqueletos de las funciones
-bool pedir_datos(int& semana, int& mes, int& anio, int& cantdias, int dias[]);
+bool pedir_datos(int& semana, int& mes, int& cantdias);
 void apareo(const char* nomA, const char* nomB, const char* planilla_nueva);
 bool copiar_archivo(const char* origi, const char* destin);
 int estado_archivo(const char* nombre);
 
-// main(tengo que tratar de estar lo mas vacia posible)
-int main(int argc, char const* argv[]) {
-  int semana, mes, cantdias, anio;
-  int dias[7];
+// main
+int main() {
+  int semana, mes, cantdias;
 
-  if (!pedir_datos(semana, mes, anio, cantdias, dias)) {
+  if (!pedir_datos(semana, mes, cantdias)) {
     cout << "datos incorrectos" << endl;
     return 1;
   }
 
-  // archivo_semanal()
+  char nombreSemanal[30] = "comandas_semana_s0-00.dat";
+  nombreSemanal[17] = '0' + semana;    // digito de la semana
+  nombreSemanal[19] = '0' + mes / 10;  // decena del mes
+  nombreSemanal[20] = '0' + mes % 10;  // unidad del mes
+
+  if (estado_archivo(nombreSemanal) == 2) {
+    cout << nombreSemanal << " ya existe, se vuelve a armar" << endl;
+  }
+
+  // creo la planilla semanal vacia ("wb" crea el archivo o lo vacia)
+  FILE* f = fopen(nombreSemanal, "wb");
+  if (f == NULL) {
+    cout << "No se pudo crear " << nombreSemanal << endl;
+    return 1;
+  }
+  fclose(f);
+  cout << "Archivo creado: " << nombreSemanal << endl;
+
+  char nombreDia[100];
+
+  int unidos = 0;
+  for (int i = 1; i <= cantdias; i++) {
+    cout << "ingrese el nombre de la planilla del dia " << i
+         << " (ej: comandas_03-06-2025.dat): " << endl;
+    cin >> nombreDia;
+
+    int estado = estado_archivo(nombreDia);
+    if (estado == 0) {
+      cout << nombreDia << " no existe (la planilla todavia no esta creada)"
+           << endl;
+    } else if (estado == 1) {
+      cout << nombreDia << " esta vacia, se saltea" << endl;
+    } else {
+      // semanal (lo acumulado) + dia nuevo -> temporal, ordenado por mozo
+      apareo(nombreSemanal, nombreDia, TEMPORAL);
+      // el temporal pasa a ser la nueva planilla semanal
+      if (copiar_archivo(TEMPORAL, nombreSemanal)) {
+        cout << nombreDia << " unido" << endl;
+        unidos++;
+      } else {
+        cout << "no se pudo copiar el resultado de " << nombreDia << endl;
+      }
+    }
+  }
+
+  cout << "se unieron " << unidos << " dia(s) en " << nombreSemanal << endl;
   return 0;
 }
 
@@ -131,7 +135,6 @@ int estado_archivo(const char* nombre) {
   }
 }
 
-// esqueleto de funcion de orden
 void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
   FILE* a = fopen(nomA, "rb");
   FILE* b = fopen(nomB, "rb");
@@ -169,7 +172,7 @@ void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
 
 bool copiar_archivo(const char* origi, const char* destin) {
   FILE* o = fopen(origi, "rb");
-  FILE* d = fopen(destin, "rb");
+  FILE* d = fopen(destin, "wb");
 
   if (o == NULL) {
     return false;
@@ -187,4 +190,6 @@ bool copiar_archivo(const char* origi, const char* destin) {
 
   fclose(o);
   fclose(d);
+
+  return true;
 }
