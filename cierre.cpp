@@ -25,8 +25,8 @@ using namespace std;
 // estuctura q me da la catedra
 struct Comanda {
   int idMozo;
-  int cantidad;
   int codigoProducto;
+  int cantidad;
   float comision;
 };
 
@@ -62,6 +62,51 @@ void apareo(const char* nomA, const char* nomB, const char* nomC) {
  fclose(a); fclose(b); fclose(c);
 }*/
 
+// declaro a los esqueletos de las funciones
+void apareo(const char* nomA, const char* nomB, const char* planilla_nueva);
+void Archivo_Semanal(const char* nombre);
+bool pedir_datos(int& semana, int& mes, int& dias);
+
+// main(tengo que tratar de estar lo mas vacia posible)
+int main(int argc, char const* argv[]) {
+  int semana, mes, cantdias;
+  // archivo_semanal()
+  return 0;
+}
+
+bool pedir_datos(int& semana, int& mes, int& cantdias) {
+  cout << "ingrese el numero de la semana(1-4): " << endl;
+  cin >> semana;
+  if (semana < 1 || semana > 4) {
+    return false;
+  }
+
+  cout << "ingrese el mes(1-12): " << endl;
+  cin >> mes;
+  if (mes < 1 || mes > 12) {
+    return false;
+  }
+
+  cout << "ingrese la cantidad de dias que tiene la semana a cerrar" << endl;
+  cin >> cantdias;
+  if (cantdias < 1 || cantdias > 7) {
+    return false;
+  }
+
+  return true;
+}
+
+void Archivo_Semanal(const char* nombre) {
+  FILE* f = fopen(nombre, "wb");
+  if (f == NULL) {
+    cout << "No se pudo crear." << endl;
+    return;
+  }
+
+  fclose(f);
+  cout << "Archivo creado." << endl;
+}
+
 // esqueleto de funcion de orden
 void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
   FILE* a = fopen(nomA, "rb");
@@ -73,10 +118,21 @@ void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
   int la = fread(&ra, sizeof(Comanda), 1, a);
   int lb = fread(&rb, sizeof(Comanda), 1, b);
 
+  while (la == 1 && lb == 1) {  // mientras haya en AMBOS
+    if (ra.idMozo < rb.idMozo) {
+      fwrite(&ra, sizeof(Comanda), 1, pln);
+      la = fread(&ra, sizeof(Comanda), 1, a);  // avanzo A
+    } else {
+      fwrite(&rb, sizeof(Comanda), 1, pln);
+      lb = fread(&rb, sizeof(Comanda), 1, b);  // avanzo B
+    }
+  }
+
   while (la == 1) {  // agoto A (si fue el que sobró)
     fwrite(&ra, sizeof(Comanda), 1, pln);
     la = fread(&ra, sizeof(Comanda), 1, a);
   }
+
   while (lb == 1) {  // agoto B
     fwrite(&rb, sizeof(Comanda), 1, pln);
     lb = fread(&rb, sizeof(Comanda), 1, b);
@@ -85,10 +141,4 @@ void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
   fclose(a);
   fclose(b);
   fclose(pln);
-}
-
-// main(tengo que tratar de estar lo mas vacia posible)
-int main(int argc, char const* argv[]) {
-  /* code */
-  return 0;
 }
