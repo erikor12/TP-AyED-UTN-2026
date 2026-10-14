@@ -63,18 +63,28 @@ void apareo(const char* nomA, const char* nomB, const char* nomC) {
 }*/
 
 // declaro a los esqueletos de las funciones
+// declaro a los esqueletos de las funciones
+bool pedir_datos(int& semana, int& mes, int& anio, int& cantdias, int dias[]);
 void apareo(const char* nomA, const char* nomB, const char* planilla_nueva);
-void Archivo_Semanal(const char* nombre);
-bool pedir_datos(int& semana, int& mes, int& dias);
+bool copiar_archivo(const char* origi, const char* destin);
+int estado_archivo(const char* nombre);
 
 // main(tengo que tratar de estar lo mas vacia posible)
 int main(int argc, char const* argv[]) {
-  int semana, mes, cantdias;
+  int semana, mes, cantdias, anio;
+  int dias[7];
+
+  if (!pedir_datos(semana, mes, anio, cantdias, dias)) {
+    cout << "datos incorrectos" << endl;
+    return 1;
+  }
+
   // archivo_semanal()
   return 0;
 }
 
-bool pedir_datos(int& semana, int& mes, int& cantdias) {
+// funciones
+bool pedir_datos(int& semana, int& mes, int& anio, int& cantdias, int dias[]) {
   cout << "ingrese el numero de la semana(1-4): " << endl;
   cin >> semana;
   if (semana < 1 || semana > 4) {
@@ -93,18 +103,32 @@ bool pedir_datos(int& semana, int& mes, int& cantdias) {
     return false;
   }
 
+  for (int i = 0; i < cantdias; i++) {
+    cout << "ingrese el dia " << i + 1 << " de la semana(1-31): " << endl;
+    cin >> dias[i];
+    if (dias[i] < 1 || dias[i] > 31) {
+      return false;
+    }
+  }
+
   return true;
 }
 
-void Archivo_Semanal(const char* nombre) {
-  FILE* f = fopen(nombre, "wb");
+int estado_archivo(const char* nombre) {
+  FILE* f = fopen(nombre, "rb");
   if (f == NULL) {
-    cout << "No se pudo crear." << endl;
-    return;
+    return 0;
   }
 
+  Comanda r;
+  int leido = fread(&r, sizeof(Comanda), 1, f);
   fclose(f);
-  cout << "Archivo creado." << endl;
+
+  if (leido == 1) {
+    return 2;
+  } else {
+    return 1;
+  }
 }
 
 // esqueleto de funcion de orden
@@ -141,4 +165,26 @@ void apareo(const char* nomA, const char* nomB, const char* planilla_nueva) {
   fclose(a);
   fclose(b);
   fclose(pln);
+}
+
+bool copiar_archivo(const char* origi, const char* destin) {
+  FILE* o = fopen(origi, "rb");
+  FILE* d = fopen(destin, "rb");
+
+  if (o == NULL) {
+    return false;
+  }
+
+  if (d == NULL) {
+    return false;
+  }
+
+  Comanda r;  // guarda de a uno
+
+  while (fread(&r, sizeof(Comanda), 1, o) == 1) {
+    fwrite(&r, sizeof(Comanda), 1, d);
+  }
+
+  fclose(o);
+  fclose(d);
 }
