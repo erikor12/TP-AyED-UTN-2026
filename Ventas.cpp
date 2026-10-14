@@ -65,7 +65,11 @@ int main() {
     printf ("Cantidad invalida.\n");
     break;
    }
-    
+    if (cantidad<=0) {
+        printf ("La cantidad debe ser mayor a cero.\n");
+    } else if (cantidad>producto.stock) { 
+        printf ("No hay suficiente stock disponible.\n");
+        
     } else { 
         Venta venta;
         
