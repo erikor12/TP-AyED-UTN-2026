@@ -31,13 +31,20 @@ int main() {
     int cantidad;
     printf ("\n===Nueva Venta====\n");
     printf ("Numero de Mozo: ");
-    scanf ("%d", &numeroMozo);
+    if (scanf ("%d", &numeroMozo)!=1) {
+        printf ("Entrada invalida para el numero de mozo.\n");
+        break;
+        
+    };
     printf ("Codigo de Producto: ");
-    scanf ("%d", &codigoProducto);
-    printf ("Cantidad: ");  
-
+    if (scanf ("%d", &codigoProducto)!=1) {
+        printf ("Entrada invalida para el codigo de producto.\n");
+        break;
+    }
+    
    }
    Producto producto;
+   int encontrado=0;
    rewind (Inventario);
    int encontrado=0;
    while (fread (&producto,sizeof(Producto),1,inventario)==1) {
@@ -54,11 +61,10 @@ int main() {
     printf ("Stock disponible:%d\n", producto.stock);
 
     printf ("Cantidad:");
-    scanf ("%d",&cantidad);
-    if (cantidad<=0) { 
-        printf ("La cantidad debe ser mayor a cero.\n");
-    } else if (cantidad>producto.stock) {
-        printf ("No hay stock suficiente.\n");
+    if (scanf ("%d",&cantidad)!=1) {};
+    printf ("Cantidad invalida.\n");
+    break;
+   }
     
     } else { 
         Venta venta;
