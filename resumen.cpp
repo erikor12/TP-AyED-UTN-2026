@@ -7,49 +7,53 @@ y que muestre todo en pantalla*/
 #include <cstring>
 using namespace std;
 
-struct Semana
+struct Comanda
 {
-    // clave del mozo
-    // clave del producto
-    // cantidad vendida
-    // precio unitario
-    // comisión del mozo
+    int idMozo;
+    int codigoProducto;
+    int cantidad;
+    float comision;
+};
+
+struct Producto
+{
+    int codigo;
+    char descripcion[50];
+    float precio;
+    int stockActual;
 };
 
 int main(int argc, char const *argv[])
 {
-    FILE *f = fopen("alumnos.dat", "rb");
-    if (f == NULL)
-    {
-        cout << "No se pudo abrir el archivo." << endl;
-        return 1;
-    }
-    fclose(f);
+
+
     return 0;
 }
 
-void corteControl(const char *nombre)
+void mostrar(const char *nombre)
 {
     FILE *f = fopen(nombre, "rb");
     if (f == NULL) {
         cout << "No se pudo abrir el archivo." << endl;
-        return 1;
+        return;
     }
-    Semana r;
-    int leido = fread(&r, sizeof(Semana), 1, f); // lectura anticipada
+    Comanda r;
+    Producto p;
+    int leido = fread(&r, sizeof(Comanda), 1, f); // lectura anticipada
     while (leido == 1)
     {
         // Procesar el grupo
-        int claveGrupo = r.clave; // clave de control
+        int claveGrupo = r.idMozo; // clave de control
         int cantidad = 0;          // contador del grupo
         float comision = 0;          // acumulador del grupo
         float total = 0;          // acumulador del grupo
-        while (leido == 1 && r.clave == claveGrupo)
+        while (leido == 1 && r.idMozo == claveGrupo)
         {
-            cantidad += r.cantidadprod;
-            total += r.precio * r.cantidadprod;
+            cantidad += r.cantidad;
+            fread(&p, sizeof(Producto), 1, f);
+            total += p.precio * r.cantidad;
             comision += r.comision;
-            leido = fread(&r, sizeof(Semana), 1, f);
+            leido = fread(&r, sizeof(Comanda), 1, f);
         }
         cout << "ID del mozo: " << claveGrupo << endl;
         cout << "Cantidad Vendida: " << cantidad << endl;

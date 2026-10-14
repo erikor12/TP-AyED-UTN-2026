@@ -17,7 +17,8 @@ Trabajo Práctico grupal de **Algoritmos y Estructuras de Datos** (UTN FRBA) —
 Los programas leen y escriben archivos `.dat` en la carpeta donde se ejecutan. Los archivos de `datos/` son los **originales** y no se modifican: copiálos a la carpeta donde vas a compilar y correr, y trabajá sobre esas copias.
 
 ```bash
-cp datos/comandas_historicas.dat datos/inventario.dat .
+cp datos/comandas_historicas.dat comandas_historicas.dat
+cp datos/inventario.dat inventario.dat 
 ```
 
 ### Compilar y correr cada programa 
