@@ -19,7 +19,7 @@ struct ComandaHistorica{ //Mayusculas -eli
 struct Mozo{
 int idMozo;
 char nombre [50];
-char contraseña [20];
+char password [20]; //tuve que cambiar contraseña por password, por mi compilador.li
 float totalComision =0;
 };
 //aca iria el struct de la nueva comanda historica que nos pide para ordenar* Listo
@@ -29,6 +29,15 @@ struct Comanda {
     int cantidad;
     float comision;
 };
+
+struct Producto
+{
+    int codigo;
+    char descripcion[50];
+    float precio;
+    int stockActual;
+};
+
 
 //valor que nos dan para encriptar las claves(corrimiento k)
 const int clave_k=5;
@@ -72,7 +81,7 @@ while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del arc
         }
         }
 
-    if(!yaExiste){ //SI ya existe, no se crea otro id. Solo suma la comision
+    if(yaExiste){ //SI ya existe, no se crea otro id. Solo suma la comision //le quité el ! pq la lógca estaba invertida .li
     listaMozos[indiceMozo].totalComision+= comandaLeida.comision;
     }
 
@@ -84,7 +93,7 @@ while(fread(&comandaLeida,sizeof(ComandaHistorica),1,archivoviejo)==1){//del arc
     //crea su contraseña inicial
     char clave_texto[10];
     sprintf(clave_texto, "%d", nuevo.idMozo);
-    encriptarClave(clave_texto,nuevo.contraseña,clave_k);//nro de idMozo guardado en la variable
+    encriptarClave(clave_texto,nuevo.password,clave_k);//nro de idMozo guardado en la variable
 
  listaMozos[cantidadMozos]=nuevo;
  cantidadMozos++; //la cantiaad de mozos aunmenta de uno en uno
@@ -106,7 +115,7 @@ for (int i = 0; i < cantidadMozos; i++) {
     }
     fclose(pMozos);
 
-    cout <<"se guardo correctamente"<<cantidadMozos<<" mozos en mozos.dat" << endl;
+    cout <<"Se guardaron correctamente: "<<cantidadMozos<<" mozos en mozos.dat" << endl; //mensaje modificado.li
     return true;
 }
 
@@ -121,17 +130,89 @@ int buscarIdMozo(const char* nombreBuscado){
     }
 
     Mozo mozoLeido;
-    while(fread(&mozoLeido, sizeof(Mozo), 1, archivoMozos)){
+    while(fread(&mozoLeido, sizeof(Mozo), 1, archivoMozos)==1){
         if(strcmp(mozoLeido.nombre, nombreBuscado)==0){ //si coinciden los nombres:
             int IdEncontrado=mozoLeido.idMozo;
             fclose(archivoMozos);
             return IdEncontrado;          // devuelve el id que corresponde .li
     }
 
+}
     fclose(archivoMozos);
     return -1; 
+
 }
+bool actualizarStock(int cdgBuscado, int cantVendida){
+    FILE* archivoInventario=fopen("inventario.dat","rb+");
+
+    if (archivoInventario == NULL){
+        cout << "No se pudo abrir el archivo del inventario."<<endl;
+        return false;
+    }
+
+    Producto productoActualizado;
+    while (fread(&productoActualizado,sizeof(Producto),1,archivoInventario)==1)
+    {
+        if(productoActualizado.codigo == cdgBuscado){
+            productoActualizado.stockActual -= cantVendida;
+
+            int bytesProducto = sizeof(Producto); // indica cuántos bytes ocupa 1 producto
+            fseek(archivoInventario, -bytesProducto, SEEK_CUR);
+            fwrite(&productoActualizado,sizeof(Producto),1,archivoInventario);
+
+            fclose(archivoInventario);
+            return true;
+            
+            }
+
+    }
+    fclose(archivoInventario);
+    return false;
 }
+// me di cuenta re tarde que tenía que ordenarlo por mozos, la re .li
+bool ordenarxIdMozo(const char* nombreArchivo){
+    FILE* archivoComandas = fopen(nombreArchivo,"rb+");
+     if (archivoComandas == NULL){
+        cout << "No se pudo abrir el archivo de Comandas."<<endl;
+        return false;
+    }
+
+    int cantsComandas = 0; //Inicializo contador para saber cuántas comandas hay que ordenar.li
+    Comanda comandaAuxiliar;
+    
+    while(fread(&comandaAuxiliar, sizeof(Comanda), 1, archivoComandas) == 1){
+    cantsComandas++;
+
+}
+Comanda comActual;
+Comanda comSig;
+//solo conozco burbujeo así que.li
+for (int i = 0; i < cantsComandas -1; i++)
+{
+    for (int j = 0; j < cantsComandas -1; j++) //-1 para que no intenten leer dsp del final </3.li
+    {
+        fseek(archivoComandas, j*sizeof(Comanda), SEEK_SET);
+
+        fread(&comActual, sizeof(Comanda), 1, archivoComandas);
+        fread(&comSig, sizeof(Comanda), 1, archivoComandas);
+
+        if(comActual.idMozo > comSig.idMozo){
+            int bytesARetroceder = 2 * sizeof(Comanda); //guarda cuántos bytes ocupan 2 comandas.li
+            fseek(archivoComandas, -bytesARetroceder, SEEK_CUR);
+            
+            fwrite(&comSig, sizeof(Comanda), 1, archivoComandas);
+            fwrite(&comActual, sizeof(Comanda), 1, archivoComandas);
+             //intercambia los mozos en caso de que estén desordenados.li
+        }
+    }
+
+    
+}
+fclose(archivoComandas);
+    return true;
+
+}
+
 
 bool crearComandasDiarias(){ //es parecido a buscarIdMozo tbh -li
     FILE* archivoViejo = fopen("comandas_historicas.dat","rb");
@@ -158,15 +239,31 @@ bool crearComandasDiarias(){ //es parecido a buscarIdMozo tbh -li
         ComandaNueva.comision = comandaLeida.comision;
 
         char nombreArchivo[40];
+        sprintf(nombreArchivo, "comandas_%s.dat", comandaLeida.fecha);
         
-    return true;
-    }
-}
+        FILE* archivoDelDia = fopen(nombreArchivo,"ab");
 
+        if (archivoDelDia == NULL){
+        cout << "No se pudo crear."<<endl;
+        fclose(archivoViejo);
+        return false;
+        }
+
+        fwrite(&ComandaNueva,sizeof(Comanda), 1, archivoDelDia);
+        fclose(archivoDelDia);
+        ordenarxIdMozo(nombreArchivo); // ordena por mozo cada que se agrega una comanda oaoaoaoaoa.li
+
+        actualizarStock(comandaLeida.codigoProducto, comandaLeida.cantidad);
+    }
+    fclose(archivoViejo);
+    return true;
+}
 int main(){
 cout<<"--INICIO DE NORMALIZACION--"<<endl;
 
 //aca van nuestras llamadas
 crearArchivoMozos();
+crearComandasDiarias();
+
 return 0;
 }   
