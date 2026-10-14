@@ -69,7 +69,7 @@ int main() {
         printf ("La cantidad debe ser mayor a cero.\n");
     } else if (cantidad>producto.stock) { 
         printf ("No hay suficiente stock disponible.\n");
-        
+
     } else { 
         Venta venta;
         
@@ -78,6 +78,11 @@ int main() {
         venta.cant=cantidad;
         venta.comision=
         producto.precio*cantidad*0.10;
+
+        long posicion=ftell (inventario) - sizeof(Producto);
+        if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
+            printf ("Error al guardar venta.\n");
+        } else {
 
         producto stock -= cantidad;
         fseek (inventario, -sizeof(Producto), seek_cur);
