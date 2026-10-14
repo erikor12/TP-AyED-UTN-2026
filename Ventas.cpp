@@ -64,25 +64,30 @@ int main() {
         
     }
     //Buscar el producto en el inventario.
-    std::printf ("Codigo de Producto: ");
-    if (scanf ("%d", &codigoProducto)!=1) {
-        printf ("Entrada invalida para el codigo de producto.\n");
-        break;
+    rewind (Inventario);
+    while (true) {
+        posicion=ftell (Inventario);
+        if (fread (&producto, sizeof(Producto), 1, Inventario)!=1) {
+            break;
+        }
+        if (producto.codigo==codigoProducto) {
+            encontrado=1;
+            break;
+        }
     }
     
    }
-    }
-   }
-   if (!encontrado) {
-    std::printf("El producto no existe en el inventario.\n");
-   } else {
-    std::printf ("Producto:%s\n", producto.descripcion);
-    std::printf ("Precio:%.2f\n",producto.precio);
-    std::printf ("Stock disponible:%d\n", producto.stockActual);
 
-    std::printf ("Cantidad:");
-    if (scanf ("%d",&cantidad)!=1) {};
-    std::printf ("Cantidad invalida.\n");
+   if (!encontrado) {
+    printf("El producto no existe en el inventario.\n");
+   } else {
+    printf ("Producto:%s\n", producto.descripcion);
+    printf ("Precio:%.2f\n", producto.precio);
+    printf ("Stock disponible:%d\n", producto.stockActual);
+
+    printf ("Cantidad:");
+    if (scanf ("%d", &cantidad)!=1) {};
+    printf ("Cantidad invalida.\n");
     break;
    }
     if (cantidad<=0) {
@@ -91,13 +96,15 @@ int main() {
         printf ("No hay suficiente stock disponible.\n");
 
     } else { 
-        struct Venta;
+        //Preparar el registro historico.
+        ComandaHistorica registro;
+        strcpy (registro.fecha, fecha);
+        registro.codigoPorducto=codigoProducto;
+        registro.cantidad=cantidad;
+        registro.comision=producto.precio*cantidad*0.10;
+
+        //Guardar la venta en el historico.
         
-        Venta.numeroMozo=numeroMozo,
-        Venta.codProducto=codigoProducto;
-        Venta.cant=cantidad;
-        Venta.comision=
-        Producto.precio*cantidad*0.10;
 
         long posicion=ftell (inventario) - sizeof(Producto);
         if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
