@@ -46,18 +46,24 @@ int main() {
     fclose (Inventario);
     return 1;
    }
+   // Registrar ventas.
     int continuar=1;
    while(continuar==1) {
-    int numeroMozo;
     int codigoProducto;
     int cantidad;
-    std::printf ("\n===Nueva Venta====\n");
-    std::printf ("Numero de Mozo: ");
-    if (scanf ("%d", &numeroMozo)!=1) {
-        std::printf ("Entrada invalida para el numero de mozo.\n");
+    int encontrado=0;
+    long posicion=0;
+
+    Producto producto;
+
+    printf ("\n===Nueva Venta====\n");
+    printf ("Numero de Producto: ");
+    if (scanf ("%d", &codigoProducto)!=1) {
+    printf ("Entrada invalida para el codigo de producto.\n");
         break;
         
-    };
+    }
+    //Buscar el producto en el inventario.
     std::printf ("Codigo de Producto: ");
     if (scanf ("%d", &codigoProducto)!=1) {
         printf ("Entrada invalida para el codigo de producto.\n");
@@ -65,14 +71,6 @@ int main() {
     }
     
    }
-        Producto producto;
-            int encontrado=0;
-            rewind (Inventario);
-            int encontrado=0;
-            while (fread (&producto,sizeof(Producto),1,inventario)==1) {
-            if (producto.codigo==codigoProducto) {
-             encontrado=1
-                break ;
     }
    }
    if (!encontrado) {
