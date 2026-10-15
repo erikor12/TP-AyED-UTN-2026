@@ -54,15 +54,20 @@ int main() {
 
   int unidos = 0;
   for (int i = 1; i <= cantdias; i++) {
-    cout << "ingrese el nombre de la planilla del dia " << i
-         << " (ej: comandas_03-06-2025.dat): " << endl;
-    cin >> nombreDia;
+    int estado;
 
-    int estado = estado_archivo(nombreDia);
-    if (estado == 0) {
-      cout << nombreDia << " no existe (la planilla todavia no esta creada)"
-           << endl;
-    } else if (estado == 1) {
+    do {
+      cout << "ingrese el nombre de la planilla del dia " << i
+           << " (ej: comandas_03-06-2025.dat): " << endl;
+      cin >> nombreDia;
+
+      estado = estado_archivo(nombreDia);
+      if (estado == 0) {
+        cout << nombreDia << " no existe, vuelva a ingresar el nombre" << endl;
+      }
+    } while (estado == 0);
+
+    if (estado == 1) {
       cout << nombreDia << " esta vacia, se saltea" << endl;
     } else {
       // semanal (lo acumulado) + dia nuevo -> temporal, ordenado por mozo
