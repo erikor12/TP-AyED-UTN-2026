@@ -4,30 +4,34 @@
 #include <vector>
 #include <algorithm>
 
-struct Producto{
+using namespace std;
+
+struct Producto {
     int codigo;
-    char descripcion [50];
+    char descripcion[50];
     float precio;
     int stock;
 };
 
-struct Venta{
+struct Venta {
     int numeroMozo;
     int codProd;
     int cant;
     float comision;
 };
 
-struct Mozo{
+struct Mozo {
     int idMozo;
     char nombre[50];
     char password[20];
-    float totalcomision;
+    float totalComision;
 };
 
-const int clave_k = 5;
+const int CLAVE_K = 5;
 
-//Validar si existe el mozo y si su clave es correcta
+// --- FUNCIONES AUXILIARES (Fuera del main para mantener el orden) ---
+
+// Valida si el mozo existe y su clave es correcta
 bool validarMozo(int numeroMozo) {
     FILE *archivoMozos = fopen("mozos.dat", "rb");
     if (archivoMozos == NULL) {
@@ -54,7 +58,7 @@ bool validarMozo(int numeroMozo) {
             char claveEncriptada[20];
             int i = 0;
             while (claveIngresada[i] != '\0') {
-                claveEncriptada[i] = claveIngresada[i] + clave_k;
+                claveEncriptada[i] = claveIngresada[i] + CLAVE_K;
                 i++;
             }
             claveEncriptada[i] = '\0';
@@ -78,7 +82,8 @@ bool validarMozo(int numeroMozo) {
 
     return true;
 }
-//Ordena el archivo de ventas al terminar el dia
+
+// Ordena el archivo de ventas al finalizar la jornada
 void ordenarPlanillaDiaria(const char* nombreArchivo) {
     FILE *archivoLectura = fopen(nombreArchivo, "rb");
     if (archivoLectura == NULL) return;
@@ -104,7 +109,8 @@ void ordenarPlanillaDiaria(const char* nombreArchivo) {
         fclose(archivoEscritura);
     }
 }
-//funcion principal
+
+// --- FUNCIÓN PRINCIPAL (Ahora mucho más limpia y fácil de leer) ---
 int main() {
     char fecha[11];
     char nombreArchivo[40];
@@ -114,6 +120,7 @@ int main() {
         printf("Error al leer la fecha.\n");
         return 1;
     }
+
     sprintf(nombreArchivo, "comandas_%s.dat", fecha);
 
     FILE *inventario = fopen("inventario.dat", "rb+");
@@ -121,117 +128,15 @@ int main() {
         printf("No se pudo abrir inventario.dat\n");
         return 1;
     }
-   //Abrir el inventario.
-   FILE* Inventario=fopen ("Inventario.dat", "rb+");
-   if (Inventario==NULL){
-    printf("No se pudo abrir inventario.dat\n");
-    return 1;
-   }
-   //Abrir el archivo historico para agregar la venta.
-   FILE *historico= fopen ("Historico.dat", "ab");
-    if (historico==NULL) { 
-    printf ("No se pudo abrir comandas_historicas.dat\n");
-    fclose (Inventario);
-    return 1;
-   }
-   // Registrar ventas.
-    int continuar=1;
-   while(continuar==1) {
-    int codigoProducto;
-    int cantidad;
-    int encontrado=0;
-    long posicion=0;
 
-    Producto producto;
-
-    printf ("\n===Nueva Venta====\n");
-    printf ("Numero de Producto: ");
-    if (scanf ("%d", &codigoProducto)!=1) {
-    printf ("Entrada invalida para el codigo de producto.\n");
-        break;
-        
-    }
-    //Buscar el producto en el inventario.
-    rewind (Inventario);
-    while (true) {
-        posicion=ftell (Inventario);
-        if (fread (&producto, sizeof(Producto), 1, Inventario)!=1) {
-            break;
-        }
-        if (producto.codigo==codigoProducto) {
-            encontrado=1;
-            break;
-        }
-    }
-    
-   }
-
-   if (!encontrado) {
-    printf("El producto no existe en el inventario.\n");
-   } else {
-    printf ("Producto:%s\n", producto.descripcion);
-    printf ("Precio:%.2f\n", producto.precio);
-    printf ("Stock disponible:%d\n", producto.stockActual);
-
-    printf ("Cantidad:");
-    if (scanf ("%d", &cantidad)!=1) {};
-    printf ("Cantidad invalida.\n");
-    break;
-   }
-    if (cantidad<=0) {
-        printf ("La cantidad debe ser mayor a cero.\n");
-    } else if (cantidad>producto.stockActual) { 
-        printf ("No hay suficiente stock disponible.\n");
-
-    } else { 
-        //Preparar el registro historico.
-        ComandaHistorica registro;
-        strcpy (registro.fecha, fecha);
-        registro.codigoPorducto=codigoProducto;
-        registro.cantidad=cantidad;
-        registro.comision=producto.precio*cantidad*0.10;
-
-        //Guardar la venta en el historico.
-        if (fwrite (&registro, sizeof(ComandaHistorica), 1, historico)!=1) {
-            printf ("Error al guardar la venta en el historico.\n");
-        break;
-        }
-        //verificar que los datos se escrbieron.
-
-        if (fflush (historico)!=0){
-            printf ("Error al guardar los datos\n");
-            printf ("Verifique el archivo historico antes de continuar.\n");
-            break;
-        
-        }
-            //Descontar la cantidad vendida.
-            producto.stockActual-=cantidad;
-
-            //Volver a la posicion de producto.
-            if (fseek(Inventario, posicion, SEEK_SET)!=0) {
-                printf("Error al posicionar el inventario.\n");
-                printf("La venta ya se guardo. Revise los archivos.\n");
-                    break;
-            }
-
-    //Actualizar el inventario.
-    if (fwrite(&producto, sizeof(Producto),1, Inventario)!=1) {
-        printf ("La venta ya se guardo. Revise los archivos.\n");
-        break;
+    FILE *archivoDia = fopen(nombreArchivo, "ab");
+    if (archivoDia == NULL) {
+        printf("No se pudo abrir la planilla del dia.\n");
+        fclose(inventario);
+        return 1;
     }
 
-    if (fflush(Inventario)!=0) {
-        printf ("Error al confirmar el inventario.\n");
-        break;
-    }
-    printf("\nVenta registrada correctamente.\n");
-    printf("Comision del mozo:%.2f\n", registro.comision);
-   }
-   
-        long posicion=ftell (inventario) - sizeof(Producto);
-        if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
-            printf ("Error al guardar venta.\n");
-        } else {
+    int continuar = 1;
 
     while (continuar == 1) {
         int numeroMozo;
@@ -241,6 +146,7 @@ int main() {
             printf("Entrada invalida.\n");
             break;
         }
+
         // Llamamos a la función modularizada del mozo
         if (!validarMozo(numeroMozo)) {
             printf("¿Desea intentar otro mozo? (1=Si / 0=No): ");
@@ -254,6 +160,7 @@ int main() {
             printf("Entrada invalida.\n");
             break;
         }
+
         Producto producto;
         int encontrado = 0;
         rewind(inventario);
@@ -264,6 +171,7 @@ int main() {
                 break;
             }
         }
+
         if (!encontrado) {
             printf("El producto no existe.\n");
         } else {
@@ -307,6 +215,7 @@ int main() {
                 }
             }
         }
+
         printf("\n¿Desea cargar otra venta? (1=Si / 0=No): ");
         if (scanf("%d", &continuar) != 1) {
             continuar = 0;
