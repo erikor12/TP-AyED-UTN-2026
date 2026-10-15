@@ -1,10 +1,4 @@
 
-/*datos claves:
-
-/*enunciado:junta las planillas de todos los dias de la semana
-en una sola planilla semanal,ordenada por mozo.
-entonces tenemos q generar(comandas_semana_sx-mm.dat) pero
-necesitamos leer (comandas_dd_mm_aaaa.dat(varios))*/
 
 // librerias
 #include <cstdio>
