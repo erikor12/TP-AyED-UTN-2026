@@ -204,3 +204,19 @@ int continuar = 1;
                 }
             }
         }
+        printf("\n¿Desea cargar otra venta? (1=Si / 0=No): ");
+        if (scanf("%d", &continuar) != 1) {
+            continuar = 0;
+        }
+    }
+
+    fclose(archivoDia);
+    fclose(inventario);
+
+    // Llamamos a la función modularizada para ordenar
+    ordenarPlanillaDiaria(nombreArchivo);
+
+    printf("\nPlanilla del dia '%s' cerrada y ordenada correctamente.\n", nombreArchivo);
+
+    return 0;
+}
