@@ -121,14 +121,117 @@ int main() {
         printf("No se pudo abrir inventario.dat\n");
         return 1;
     }
+   //Abrir el inventario.
+   FILE* Inventario=fopen ("Inventario.dat", "rb+");
+   if (Inventario==NULL){
+    printf("No se pudo abrir inventario.dat\n");
+    return 1;
+   }
+   //Abrir el archivo historico para agregar la venta.
+   FILE *historico= fopen ("Historico.dat", "ab");
+    if (historico==NULL) { 
+    printf ("No se pudo abrir comandas_historicas.dat\n");
+    fclose (Inventario);
+    return 1;
+   }
+   // Registrar ventas.
+    int continuar=1;
+   while(continuar==1) {
+    int codigoProducto;
+    int cantidad;
+    int encontrado=0;
+    long posicion=0;
 
-    FILE *archivoDia = fopen(nombreArchivo, "ab");
-    if (archivoDia == NULL) {
-        printf("No se pudo abrir la planilla del dia.\n");
-        fclose(inventario);
-        return 1;
+    Producto producto;
+
+    printf ("\n===Nueva Venta====\n");
+    printf ("Numero de Producto: ");
+    if (scanf ("%d", &codigoProducto)!=1) {
+    printf ("Entrada invalida para el codigo de producto.\n");
+        break;
+        
     }
-int continuar = 1;
+    //Buscar el producto en el inventario.
+    rewind (Inventario);
+    while (true) {
+        posicion=ftell (Inventario);
+        if (fread (&producto, sizeof(Producto), 1, Inventario)!=1) {
+            break;
+        }
+        if (producto.codigo==codigoProducto) {
+            encontrado=1;
+            break;
+        }
+    }
+    
+   }
+
+   if (!encontrado) {
+    printf("El producto no existe en el inventario.\n");
+   } else {
+    printf ("Producto:%s\n", producto.descripcion);
+    printf ("Precio:%.2f\n", producto.precio);
+    printf ("Stock disponible:%d\n", producto.stockActual);
+
+    printf ("Cantidad:");
+    if (scanf ("%d", &cantidad)!=1) {};
+    printf ("Cantidad invalida.\n");
+    break;
+   }
+    if (cantidad<=0) {
+        printf ("La cantidad debe ser mayor a cero.\n");
+    } else if (cantidad>producto.stockActual) { 
+        printf ("No hay suficiente stock disponible.\n");
+
+    } else { 
+        //Preparar el registro historico.
+        ComandaHistorica registro;
+        strcpy (registro.fecha, fecha);
+        registro.codigoPorducto=codigoProducto;
+        registro.cantidad=cantidad;
+        registro.comision=producto.precio*cantidad*0.10;
+
+        //Guardar la venta en el historico.
+        if (fwrite (&registro, sizeof(ComandaHistorica), 1, historico)!=1) {
+            printf ("Error al guardar la venta en el historico.\n");
+        break;
+        }
+        //verificar que los datos se escrbieron.
+
+        if (fflush (historico)!=0){
+            printf ("Error al guardar los datos\n");
+            printf ("Verifique el archivo historico antes de continuar.\n");
+            break;
+        
+        }
+            //Descontar la cantidad vendida.
+            producto.stockActual-=cantidad;
+
+            //Volver a la posicion de producto.
+            if (fseek(Inventario, posicion, SEEK_SET)!=0) {
+                printf("Error al posicionar el inventario.\n");
+                printf("La venta ya se guardo. Revise los archivos.\n");
+                    break;
+            }
+
+    //Actualizar el inventario.
+    if (fwrite(&producto, sizeof(Producto),1, Inventario)!=1) {
+        printf ("La venta ya se guardo. Revise los archivos.\n");
+        break;
+    }
+
+    if (fflush(Inventario)!=0) {
+        printf ("Error al confirmar el inventario.\n");
+        break;
+    }
+    printf("\nVenta registrada correctamente.\n");
+    printf("Comision del mozo:%.2f\n", registro.comision);
+   }
+   
+        long posicion=ftell (inventario) - sizeof(Producto);
+        if (fwrite (&venta, sizeof(Venta), 1, archivoDia)!=1) {
+            printf ("Error al guardar venta.\n");
+        } else {
 
     while (continuar == 1) {
         int numeroMozo;
