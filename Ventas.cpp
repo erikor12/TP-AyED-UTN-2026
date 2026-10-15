@@ -78,3 +78,31 @@ bool validarMozo(int numeroMozo) {
 
     return true;
 }
+//Ordena el archivo de ventas al terminar el dia
+void ordenarPlanillaDiaria(const char* nombreArchivo) {
+    FILE *archivoLectura = fopen(nombreArchivo, "rb");
+    if (archivoLectura == NULL) return;
+
+    vector<Venta> ventasVector;
+    Venta vTemp;
+    
+    while (fread(&vTemp, sizeof(Venta), 1, archivoLectura) == 1) {
+        ventasVector.push_back(vTemp);
+    }
+    fclose(archivoLectura);
+
+    // Ordenar por número de mozo
+    sort(ventasVector.begin(), ventasVector.end(), [](const Venta& a, const Venta& b) {
+        return a.numeroMozo < b.numeroMozo;
+    });
+
+    FILE *archivoEscritura = fopen(nombreArchivo, "wb");
+    if (archivoEscritura != NULL) {
+        for (const auto& venta : ventasVector) {
+            fwrite(&venta, sizeof(Venta), 1, archivoEscritura);
+        }
+        fclose(archivoEscritura);
+    }
+}
+
+
