@@ -104,5 +104,60 @@ void ordenarPlanillaDiaria(const char* nombreArchivo) {
         fclose(archivoEscritura);
     }
 }
+//funcion principal
+int main() {
+    char fecha[11];
+    char nombreArchivo[40];
 
+    printf("Ingrese la fecha (dd-mm-aaaa): ");
+    if (scanf("%10s", fecha) != 1) {
+        printf("Error al leer la fecha.\n");
+        return 1;
+    }
+    sprintf(nombreArchivo, "comandas_%s.dat", fecha);
 
+    FILE *inventario = fopen("inventario.dat", "rb+");
+    if (inventario == NULL) {
+        printf("No se pudo abrir inventario.dat\n");
+        return 1;
+    }
+
+    FILE *archivoDia = fopen(nombreArchivo, "ab");
+    if (archivoDia == NULL) {
+        printf("No se pudo abrir la planilla del dia.\n");
+        fclose(inventario);
+        return 1;
+    }
+int continuar = 1;
+
+    while (continuar == 1) {
+        int numeroMozo;
+        printf("\n===== NUEVA VENTA =====\n");
+        printf("Numero de mozo: ");
+        if (scanf("%d", &numeroMozo) != 1) {
+            printf("Entrada invalida.\n");
+            break;
+        }
+        // Llamamos a la función modularizada del mozo
+        if (!validarMozo(numeroMozo)) {
+            printf("¿Desea intentar otro mozo? (1=Si / 0=No): ");
+            scanf("%d", &continuar);
+            continue;
+        }
+
+        int codigoProducto;
+        printf("Codigo de producto: ");
+        if (scanf("%d", &codigoProducto) != 1) {
+            printf("Entrada invalida.\n");
+            break;
+        }
+        Producto producto;
+        int encontrado = 0;
+        rewind(inventario);
+
+        while (fread(&producto, sizeof(Producto), 1, inventario) == 1) {
+            if (producto.codigo == codigoProducto) {
+                encontrado = 1;
+                break;
+            }
+        }
