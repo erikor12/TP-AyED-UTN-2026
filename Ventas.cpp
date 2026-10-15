@@ -161,3 +161,46 @@ int continuar = 1;
                 break;
             }
         }
+        if (!encontrado) {
+            printf("El producto no existe.\n");
+        } else {
+            printf("Producto: %s\n", producto.descripcion);
+            printf("Precio: %.2f\n", producto.precio);
+            printf("Stock disponible: %d\n", producto.stock);
+
+            int cantidad;
+            printf("Cantidad: ");
+            if (scanf("%d", &cantidad) != 1) {
+                printf("Cantidad invalida.\n");
+                break;
+            }
+
+            if (cantidad <= 0) {
+                printf("La cantidad debe ser mayor a cero.\n");
+            } else if (cantidad > producto.stock) {
+                printf("No hay stock suficiente.\n");
+            } else {
+                Venta venta;
+                venta.numeroMozo = numeroMozo;
+                venta.codProd = producto.codigo;
+                venta.cant = cantidad;
+                venta.comision = producto.precio * cantidad * 0.10;
+
+                long posicion = ftell(inventario) - sizeof(Producto);
+
+                if (fwrite(&venta, sizeof(Venta), 1, archivoDia) != 1) {
+                    printf("Error al guardar la venta.\n");
+                } else {
+                    producto.stock -= cantidad;
+
+                    if (fseek(inventario, posicion, SEEK_SET) != 0 ||
+                        fwrite(&producto, sizeof(Producto), 1, inventario) != 1) {
+                        printf("Error al actualizar el inventario.\n");
+                    } else {
+                        fflush(inventario);
+                        printf("\nVenta cargada correctamente.\n");
+                        printf("Comision: %.2f\n", venta.comision);
+                    }
+                }
+            }
+        }
