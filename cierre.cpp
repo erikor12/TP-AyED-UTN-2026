@@ -88,7 +88,7 @@ int main() {
 }
 
 // funciones
-bool pedir_datos(int& semana, int& mes, int& anio, int& cantdias, int dias[]) {
+bool pedir_datos(int& semana, int& mes, int& cantdias) {
   cout << "ingrese el numero de la semana(1-4): " << endl;
   cin >> semana;
   if (semana < 1 || semana > 4) {
@@ -105,14 +105,6 @@ bool pedir_datos(int& semana, int& mes, int& anio, int& cantdias, int dias[]) {
   cin >> cantdias;
   if (cantdias < 1 || cantdias > 7) {
     return false;
-  }
-
-  for (int i = 0; i < cantdias; i++) {
-    cout << "ingrese el dia " << i + 1 << " de la semana(1-31): " << endl;
-    cin >> dias[i];
-    if (dias[i] < 1 || dias[i] > 31) {
-      return false;
-    }
   }
 
   return true;
