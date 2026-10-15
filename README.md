@@ -64,8 +64,19 @@ g++ -O2 -o resumen       resumen.cpp
 - Ordenar Mozos por ID: Aplica un ordenamiento por burbujeo, comparando e intercambiando las comandas directamente en el archivo.
 
 ### Ventas.cpp
+**Integrantes:** Britany Jazmin Leon Navarro
 
-texto
+**Tareas:** Pide la fecha del dia una sola vez al empezar y abre (o crea) la planilla de ese dia. Despues, por cada venta pide el numero de mozo y su clave para validarlos, busca el precio y el stock en el inventario, calcula la comision, actualiza el stock y agrega la venta a la planilla del dia. Al finalizar, la deja ordenada por mozo.
+
+#### Explicación por partes:
+
+- Inicio y planilla del día: pide la fecha en formato dd-mm-aaaa y con eso arma el nombre del archivo (comandas_dd-mm-aaaa.dat). Lo abre en modo ab para ir agregando las ventas al final sin borrar lo que ya estaba.
+- Validación del mozo y clave: la función (validarMozo) busca el número de mozo en mozos.dat. Si existe, pide la clave, le aplica la misma encriptación de corrimiento (CLAVE_K = 5) y la compara con la guardada usando strcmp. Si no coincide o el mozo no existe, no deja cargar la venta.
+- Búsqueda en el inventario: usa rewind para leer inventario.dat desde el principio y recorre el archivo hasta encontrar el código de producto ingresado para obtener su precio y stock actual.
+- Validación de cantidad y stock: controla que no ingresen números menores o iguales a cero y que la cantidad pedida no sea mayor al stock disponible en el buffet.
+- Cálculo de comisión: multiplica el precio del producto por la cantidad vendida y saca el 10% (0.10), qué es la ganancia que le corresponde al mozo por esa comanda.
+- Actualización de stock y guardado: usa ftell para guardar la posición exacta del producto antes de escribir la venta. Si la venta se guarda bien, retrocede con fseek a esa posición en inventario.dat y sobrescribe el registro con el stock ya descontado.
+- Cierre y ordenamiento: cuando el usuario elige no cargar más ventas, la función ordenarPlanillaDiaria lee todas las ventas cargadas en el día, las pasa a un std::vector para ordenarlas por numeroMozo con std::sort y vuelve a escribir el archivo del día. 
 
 ### Cierre.cpp
 #### Integrante: 

@@ -101,6 +101,7 @@ void mostrarResumen(int semana, int mes)
     Comanda comanda;
     int leido = fread(&comanda, sizeof(Comanda), 1, comandas);
     float totalBuffet = 0;
+    int cantidadVendidaTotal = 0;
 
     cout << "\nResumen de " << nombreArchivo << endl;
     while (leido == 1)
@@ -116,7 +117,7 @@ void mostrarResumen(int semana, int mes)
             Producto producto;
             cantidadVendida += comanda.cantidad;
             comisionMozo += comanda.comision;
-
+            cantidadVendidaTotal += comanda.cantidad;
             if (buscarProducto(comanda.codigoProducto, producto))
                 totalMozo += producto.precio * comanda.cantidad;
             else
@@ -138,8 +139,8 @@ void mostrarResumen(int semana, int mes)
         cout << "Comision a pagar: " << comisionMozo << endl;
         cout << "Total vendido: " << totalMozo << endl;
     }
-
-    cout << "\nTotal del buffet: " << totalBuffet << endl;
+    cout << "\nTotal de productos vendidos: " << cantidadVendidaTotal << endl;
+    cout << "Total del buffet: " << totalBuffet << endl;
     fclose(comandas);
 }
 
