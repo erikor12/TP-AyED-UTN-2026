@@ -68,8 +68,28 @@ g++ -O2 -o resumen       resumen.cpp
 texto
 
 ### Cierre.cpp
+#### Integrante: 
+Fernandez Milagros.
 
-texto
+#### Tareas:
+junta las planillas de todos los dias de la semana
+en una sola planilla semanal,ordenada por mozo.
+Entonces tenemos q generar(comandas_semana_sx-mm.dat) pero
+necesitamos leer (comandas_dd_mm_aaaa.dat(varios)).
+
+#### Explicación por partes
+
+- **Juntar los días:** use apareo, porque las planillas diarias ya vienen ordenadas por mozo. Así no hace falta volver a ordenarlas.
+
+- **Recorrer los días de la semana:** el apareo une solo dos archivos y una semana tiene hasta siete planillas, por eso uso un "for" que va acumulando las planillas de los distintos días, de a una.
+
+- **Leer y escribir:** como no se puede leer y escribir el mismo archivo a la vez, guardo el resultado del apareo en un archivo temporal, y la función `copiar_archivo` lo pega en la planilla semanal.
+
+- **Planillas diarias:** las genera `ventas.cpp`, por eso `cierre.cpp` solo recibe el nombre de cada una y la busca.
+
+- **Validación de datos:** la hace la función `pedir_datos`, que controla con `if` que la semana, el mes y la cantidad de días estén dentro de un rango válido. Si algún dato es incorrecto, el programa avisa y termina.
+
+- **Casos raros:** hice la función `estado_archivo`, que evalúa el estado de una planilla y devuelve un número: "0" si el archivo no existe (la planilla del día todavía no se creó), "1" si existe pero está vacío (ese día no se cargaron ventas) y "2" si tiene registros. Si no existe o está vacía, el programa avisa y la saltea; si tiene registros, la une a la semanal.
 
 ### Resumen.cpp
 
