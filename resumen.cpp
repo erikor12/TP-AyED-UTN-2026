@@ -32,11 +32,14 @@ struct Producto
 };
 
 // bool porque si lo encuentra, pasa el struct por ref.
-bool buscarMozo(int idMozo, Mozo &mozo) 
+bool buscarMozo(int idMozo, Mozo &mozo)
 {
     FILE *mozos = fopen("mozos.dat", "rb");
     if (mozos == NULL)
+    {
+        cout << "No se pudo abrir el archivo." << endl;
         return false;
+    }
 
     bool encontrado = false;
     while (fread(&mozo, sizeof(Mozo), 1, mozos) == 1)
@@ -107,6 +110,16 @@ void mostrarResumen(int semana, int mes)
     while (leido == 1)
     {
         int idMozo = comanda.idMozo;
+        Mozo mozo;
+
+        if (!buscarMozo(idMozo, mozo))
+        {
+            cout << "Advertencia: no existe el mozo con ID " << idMozo << "." << endl;
+            while (leido == 1 && comanda.idMozo == idMozo)
+                leido = fread(&comanda, sizeof(Comanda), 1, comandas);
+            continue;
+        }
+
         int cantidadVendida = 0;
         float comisionMozo = 0;
         float totalMozo = 0;
@@ -114,27 +127,23 @@ void mostrarResumen(int semana, int mes)
         // cierre.cpp genera este archivo ordenado por idMozo.
         while (leido == 1 && comanda.idMozo == idMozo)
         {
+            
             Producto producto;
-            cantidadVendida += comanda.cantidad;
-            comisionMozo += comanda.comision;
-            cantidadVendidaTotal += comanda.cantidad;
             if (buscarProducto(comanda.codigoProducto, producto))
+            {
+                cantidadVendida += comanda.cantidad;
+                comisionMozo += comanda.comision;
+                cantidadVendidaTotal += comanda.cantidad;
                 totalMozo += producto.precio * comanda.cantidad;
+            }
             else
-                cout << "Advertencia: no existe el producto "
-                     << comanda.codigoProducto << "." << endl;
+                cout << "Advertencia: no existe el producto " << comanda.codigoProducto << "." << endl;
 
             leido = fread(&comanda, sizeof(Comanda), 1, comandas);
         }
 
-        Mozo mozo;
         totalBuffet += totalMozo;
-        cout << "\nMozo: ";
-        if (buscarMozo(idMozo, mozo))
-            cout << mozo.nombre;
-        else
-            cout << "ID " << idMozo;
-        cout << " (ID " << idMozo << ")" << endl;
+        cout << "\nMozo: " << mozo.nombre << " (ID " << idMozo << ")" << endl;
         cout << "Cantidad vendida: " << cantidadVendida << endl;
         cout << "Comision a pagar: " << comisionMozo << endl;
         cout << "Total vendido: " << totalMozo << endl;
