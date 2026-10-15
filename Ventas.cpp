@@ -83,7 +83,7 @@ void ordenarPlanillaDiaria(const char* nombreArchivo) {
     FILE *archivoLectura = fopen(nombreArchivo, "rb");
     if (archivoLectura == NULL) return;
 
-    vector<Venta> ventasVector;
+    std::vector<Venta> ventasVector;
     Venta vTemp;
     
     while (fread(&vTemp, sizeof(Venta), 1, archivoLectura) == 1) {
@@ -92,7 +92,7 @@ void ordenarPlanillaDiaria(const char* nombreArchivo) {
     fclose(archivoLectura);
 
     // Ordenar por número de mozo
-    sort(ventasVector.begin(), ventasVector.end(), [](const Venta& a, const Venta& b) {
+    std::sort(ventasVector.begin(), ventasVector.end(), [](const Venta& a, const Venta& b) {
         return a.numeroMozo < b.numeroMozo;
     });
 
