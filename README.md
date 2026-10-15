@@ -56,6 +56,8 @@ g++ -O2 -o resumen       resumen.cpp
 - Procesamiento de binarios: Se leen comandas historicas registro por registro con fread.
 - Control de duplicados: Se utiliza la función strcmp para comparar los nombres y evitar duplicar mozos en memoria. 
 - Asignación de IDs: Si el mozo no existe, se le asigna un ID incremental (es decir, cantidadMozos + 1)  y su respectiva clave encriptada.
+- Encriptar Clave: Aplica un corrimiento de cinco posiciones a cada carácter de la clave.
+- Crear Archivo Mozos: Identifica los mozos sin repetirlos, asigna sus IDs, acumula sus comisiones y genera mozos.dat.
 - Buscar ID por mozo: Recorre mozos.dat con fread y compara los nombres con strcmp. Si coinciden, devuelve el ID del mozo.
 - Crear Comandas Diarias: Recorre el archivo histórico, transforma cada registro al formato nuevo y lo guarda en el archivo correspondiente a su fecha.
 - Actualizar Stock: Busca el producto por código, descuenta la cantidad vendida y sobrescribe el registro utilizando fseek y fwrite.
