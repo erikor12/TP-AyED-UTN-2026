@@ -71,13 +71,13 @@ g++ -O2 -o resumen       resumen.cpp
 
 #### Explicación por partes
 
-* **Inicio y planilla del día:** pide la fecha en formato dd-mm-aaaa y con eso arma el nombre del archivo `comandas_dd-mm-aaaa.dat`. Lo abre en modo ab para ir agregando las ventas al final sin borrar lo que ya estaba.
-* **Validación del mozo y clave:** la función `validarMozo` busca el número de mozo en `mozos.dat`. Si existe, pide la clave, le aplica la misma encriptación de corrimiento (CLAVE_K = 5) y la compara con la guardada usando `strcmp`. Si no coincide o el mozo no existe, no deja cargar la venta.
-* **Búsqueda en el inventario:** usa rewind para leer `inventario.dat` desde el principio y recorre el archivo hasta encontrar el código de producto ingresado para obtener su precio y stock actual.
-* **Validación de cantidad y stock:** controla que no ingresen números menores o iguales a cero y que la cantidad pedida no sea mayor al stock disponible en el buffet.
-* **Cálculo de comisión:** multiplica el precio del producto por la cantidad vendida y saca el 10% (0.10), qué es la ganancia que le corresponde al mozo por esa comanda.
-* **Actualización de stock y guardado:** usa `ftell` para guardar la posición exacta del producto antes de escribir la venta. Si la venta se guarda bien, retrocede con `fseek` a esa posición en `inventario.dat` y sobrescribe el registro con el stock ya descontado.
-* **Cierre y ordenamiento:** cuando el usuario elige no cargar más ventas, la función `ordenarPlanillaDiaria` lee todas las ventas cargadas en el día, las pasa a un `std::vector` para ordenarlas por `numeroMozo` con `std::sort` y vuelve a escribir el archivo del día.
+* **Inicio y planilla del día:** solicito la fecha y creo el nombre `comandas_dd-mm-aaaa.dat`. Abro la planilla en modo "ab" para agregar ventas sin borrar las anteriores.
+* **Validación del mozo y clave:** con `validarMozo()`, busco al mozo en "mozos.dat" y verifico su clave mediante un corrimiento de 5 caracteres y la función `strcmp()`.
+* **Búsqueda en el inventario:** con `buscarProducto()`, utilizo búsqueda binaria en "inventario.dat" para encontrar el producto por código y obtener su precio y stock.
+* **Validación de cantidad y stock:** comprueba que la cantidad ingresada sea mayor que cero y que no supere el stock disponible.
+* **Cálculo de comisión:** calcula la comisión del mozo aplicando el 10 % al precio del producto multiplicado por la cantidad vendida.
+* **Actualización de stock y guardado:** descuenta del inventario la cantidad vendida y guarda los datos de la venta en la planilla del día.
+* **Cierre y ordenamiento:** cuando el usuario termina de cargar ventas, cierra los archivos y ejecuta `ordenarPlanilla`, que lee las comandas, las ordena por número de mozo mediante el método de selección y vuelve a guardarlas en el archivo.
 
 ### Cierre.cpp
 
