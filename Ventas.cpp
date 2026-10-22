@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
-#include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -10,13 +8,13 @@ struct Producto {
     int codigo;
     char descripcion[50];
     float precio;
-    int stock;
+    int stockActual;
 };
 
-struct Venta {
-    int numeroMozo;
-    int codProd;
-    int cant;
+struct Comanda {
+    int idMozo;
+    int codigoProducto;
+    int cantidad;
     float comision;
 };
 
@@ -27,111 +25,144 @@ struct Mozo {
     float totalComision;
 };
 
-const int CLAVE_K = 5;
+const int clave_k = 5;              // desplazamiento de la "encriptacion"
+const int MAX_VENTAS = 1000;        // tamaño fisico del array
+const float PORCENTAJE = 0.10f;     // comision del 10%
 
-// --- FUNCIONES AUXILIARES (Fuera del main para mantener el orden) ---
+// Busco al mozo en mozos.dat y verifica su clave.
 
-// Valida si el mozo existe y su clave es correcta
-bool validarMozo(int numeroMozo) {
+bool validarMozo(int idMozo) {
     FILE *archivoMozos = fopen("mozos.dat", "rb");
     if (archivoMozos == NULL) {
-        printf("No se pudo abrir mozos.dat.\n");
+        cout << "No se pudo abrir mozos.dat" << endl;
         return false;
     }
 
-    Mozo mozoLeido;
-    bool mozoEncontrado = false;
-    bool claveCorrecta = false;
-    char claveIngresada[20];
+    Mozo mozo;
+    bool valido = false;
 
-    while (fread(&mozoLeido, sizeof(Mozo), 1, archivoMozos) == 1) {
-        if (mozoLeido.idMozo == numeroMozo) {
-            mozoEncontrado = true;
-            printf("Mozo encontrado: %s\n", mozoLeido.nombre);
-            printf("Ingrese la clave: ");
-            if (scanf("%19s", claveIngresada) != 1) {
-                fclose(archivoMozos);
-                return false;
-            }
+    while (fread(&mozo, sizeof(Mozo), 1, archivoMozos) == 1) {
+        if (mozo.idMozo == idMozo) {
+            char clave[20];
+            cout << "Mozo: " << mozo.nombre << endl;
+            cout << "Ingrese la clave: ";
+            cin >> clave;
 
-            // Encriptar clave ingresada
-            char claveEncriptada[20];
+            // Encripto la clave ingresada sumando clave_k a cada letra
             int i = 0;
-            while (claveIngresada[i] != '\0') {
-                claveEncriptada[i] = claveIngresada[i] + CLAVE_K;
+            while (clave[i] != '\0') {
+                clave[i] = clave[i] + clave_k;
                 i++;
             }
-            claveEncriptada[i] = '\0';
 
-            if (strcmp(claveEncriptada, mozoLeido.password) == 0) {
-                claveCorrecta = true;
+            // Comparo contra la clave guardada (que ya esta encriptada)
+            if (strcmp(clave, mozo.password) == 0) {
+                valido = true;
+            } else {
+                cout << "Clave incorrecta." << endl;
             }
-            break;
+            break;  // ya encontre al mozo, no sigo leyendo
         }
     }
+
     fclose(archivoMozos);
 
-    if (!mozoEncontrado) {
-        printf("Error: El numero de mozo no existe.\n");
-        return false;
+    if (!valido) {
+        cout << "No se pudo validar al mozo." << endl;
     }
-    if (!claveCorrecta) {
-        printf("Error: Clave incorrecta. Acceso denegado.\n");
-        return false;
-    }
-
-    return true;
+    return valido;
 }
 
-// Ordena el archivo de ventas al finalizar la jornada
-void ordenarPlanillaDiaria(const char* nombreArchivo) {
-    FILE *archivoLectura = fopen(nombreArchivo, "rb");
-    if (archivoLectura == NULL) return;
+// Busqueda binaria en inventario.dat (ordenado por codigo).
+// Si lo encuentro, dejo el producto en "producto" y su posicion en "posicion".
+bool buscarProducto(FILE *inventario, int codigo, Producto &producto, long &posicion) {
+    fseek(inventario, 0, SEEK_END);
+    long cantidad = ftell(inventario) / sizeof(Producto);
 
-    std::vector<Venta> ventasVector;
-    Venta vTemp;
-    
-    while (fread(&vTemp, sizeof(Venta), 1, archivoLectura) == 1) {
-        ventasVector.push_back(vTemp);
-    }
-    fclose(archivoLectura);
+    long primero = 0;
+    long ultimo = cantidad - 1;
 
-    // Ordenar por número de mozo
-    std::sort(ventasVector.begin(), ventasVector.end(), [](const Venta& a, const Venta& b) {
-        return a.numeroMozo < b.numeroMozo;
-    });
+    while (primero <= ultimo) {
+        long medio = (primero + ultimo) / 2;
 
-    FILE *archivoEscritura = fopen(nombreArchivo, "wb");
-    if (archivoEscritura != NULL) {
-        for (const auto& venta : ventasVector) {
-            fwrite(&venta, sizeof(Venta), 1, archivoEscritura);
+        fseek(inventario, medio * sizeof(Producto), SEEK_SET);
+        fread(&producto, sizeof(Producto), 1, inventario);
+
+        if (producto.codigo == codigo) {
+            posicion = medio;
+            return true;
         }
-        fclose(archivoEscritura);
+        if (codigo > producto.codigo) {
+            primero = medio + 1;
+        } else {
+            ultimo = medio - 1;
+        }
     }
+    return false;
 }
 
-// --- FUNCIÓN PRINCIPAL (Ahora mucho más limpia y fácil de leer) ---
+// Leo la planilla del dia, y lo ordeno por mozo y lo reescribe.
+void ordenarPlanilla(const char *nombreArchivo) {
+    Comanda ventas[MAX_VENTAS];
+    int cantidad = 0;               
+
+    FILE *archivo = fopen(nombreArchivo, "rb");
+    if (archivo == NULL) {
+        cout << "No se pudo abrir la planilla para ordenar." << endl;
+        return;
+    }
+
+    // Paso todo el archivo al array
+    while (cantidad < MAX_VENTAS &&
+           fread(&ventas[cantidad], sizeof(Comanda), 1, archivo) == 1) {
+        cantidad++;
+    }
+    fclose(archivo);
+
+    // Ordenamiento por seleccion
+    for (int i = 0; i < cantidad - 1; i++) {
+        int menor = i;
+        for (int j = i + 1; j < cantidad; j++) {
+            if (ventas[j].idMozo < ventas[menor].idMozo) {
+                menor = j;
+            }
+        }
+        Comanda aux = ventas[i];
+        ventas[i] = ventas[menor];
+        ventas[menor] = aux;
+    }
+
+    // Reescribo el archivo ya ordenado
+    archivo = fopen(nombreArchivo, "wb");
+    fwrite(ventas, sizeof(Comanda), cantidad, archivo);
+    fclose(archivo);
+
+    cout << "Planilla ordenada por mozo." << endl;
+}
+
 int main() {
     char fecha[11];
     char nombreArchivo[40];
 
-    printf("Ingrese la fecha (dd-mm-aaaa): ");
-    if (scanf("%10s", fecha) != 1) {
-        printf("Error al leer la fecha.\n");
-        return 1;
-    }
+    // La fecha se pide una sola vez
+    cout << "Ingrese la fecha (dd-mm-aaaa): ";
+    cin >> fecha;
 
-    sprintf(nombreArchivo, "comandas_%s.dat", fecha);
+    // Armo el nombre: comandas_dd-mm-aaaa.dat
+    strcpy(nombreArchivo, "comandas_");
+    strcat(nombreArchivo, fecha);
+    strcat(nombreArchivo, ".dat");
 
     FILE *inventario = fopen("inventario.dat", "rb+");
     if (inventario == NULL) {
-        printf("No se pudo abrir inventario.dat\n");
+        cout << "No se pudo abrir inventario.dat" << endl;
         return 1;
     }
 
+    // "ab": si no existe la crea, si existe agrega al final
     FILE *archivoDia = fopen(nombreArchivo, "ab");
     if (archivoDia == NULL) {
-        printf("No se pudo abrir la planilla del dia.\n");
+        cout << "No se pudo abrir la planilla del dia." << endl;
         fclose(inventario);
         return 1;
     }
@@ -139,96 +170,61 @@ int main() {
     int continuar = 1;
 
     while (continuar == 1) {
-        int numeroMozo;
-        printf("\n===== NUEVA VENTA =====\n");
-        printf("Numero de mozo: ");
-        if (scanf("%d", &numeroMozo) != 1) {
-            printf("Entrada invalida.\n");
-            break;
-        }
+        int idMozo, codigo, cantidad;
 
-        // Llamamos a la función modularizada del mozo
-        if (!validarMozo(numeroMozo)) {
-            printf("¿Desea intentar otro mozo? (1=Si / 0=No): ");
-            scanf("%d", &continuar);
-            continue;
-        }
+        cout << "\n--- NUEVA VENTA ---" << endl;
+        cout << "Numero de mozo: ";
+        cin >> idMozo;
 
-        int codigoProducto;
-        printf("Codigo de producto: ");
-        if (scanf("%d", &codigoProducto) != 1) {
-            printf("Entrada invalida.\n");
-            break;
-        }
+        if (validarMozo(idMozo)) {
+            cout << "Codigo de producto: ";
+            cin >> codigo;
 
-        Producto producto;
-        int encontrado = 0;
-        rewind(inventario);
+            Producto producto;
+            long posicion;
 
-        while (fread(&producto, sizeof(Producto), 1, inventario) == 1) {
-            if (producto.codigo == codigoProducto) {
-                encontrado = 1;
-                break;
-            }
-        }
+            if (buscarProducto(inventario, codigo, producto, posicion)) {
+                cout << "Producto: " << producto.descripcion << endl;
+                cout << "Precio: " << producto.precio << endl;
+                cout << "Stock: " << producto.stockActual << endl;
+                cout << "Cantidad: ";
+                cin >> cantidad;
 
-        if (!encontrado) {
-            printf("El producto no existe.\n");
-        } else {
-            printf("Producto: %s\n", producto.descripcion);
-            printf("Precio: %.2f\n", producto.precio);
-            printf("Stock disponible: %d\n", producto.stock);
-
-            int cantidad;
-            printf("Cantidad: ");
-            if (scanf("%d", &cantidad) != 1) {
-                printf("Cantidad invalida.\n");
-                break;
-            }
-
-            if (cantidad <= 0) {
-                printf("La cantidad debe ser mayor a cero.\n");
-            } else if (cantidad > producto.stock) {
-                printf("No hay stock suficiente.\n");
-            } else {
-                Venta venta;
-                venta.numeroMozo = numeroMozo;
-                venta.codProd = producto.codigo;
-                venta.cant = cantidad;
-                venta.comision = producto.precio * cantidad * 0.10;
-
-                long posicion = ftell(inventario) - sizeof(Producto);
-
-                if (fwrite(&venta, sizeof(Venta), 1, archivoDia) != 1) {
-                    printf("Error al guardar la venta.\n");
+                if (cantidad <= 0) {
+                    cout << "La cantidad debe ser mayor a cero." << endl;
+                } else if (cantidad > producto.stockActual) {
+                    cout << "No hay stock suficiente." << endl;
                 } else {
-                    producto.stock -= cantidad;
+                    // Armo la venta y calculo la comision
+                    Comanda venta;
+                    venta.idMozo = idMozo;
+                    venta.codigoProducto = producto.codigo;
+                    venta.cantidad = cantidad;
+                    venta.comision = producto.precio * cantidad * PORCENTAJE;
 
-                    if (fseek(inventario, posicion, SEEK_SET) != 0 ||
-                        fwrite(&producto, sizeof(Producto), 1, inventario) != 1) {
-                        printf("Error al actualizar el inventario.\n");
-                    } else {
-                        fflush(inventario);
-                        printf("\nVenta cargada correctamente.\n");
-                        printf("Comision: %.2f\n", venta.comision);
-                    }
+                    // Descuento stock y lo guardo en su lugar
+                    producto.stockActual = producto.stockActual - cantidad;
+                    fseek(inventario, posicion * sizeof(Producto), SEEK_SET);
+                    fwrite(&producto, sizeof(Producto), 1, inventario);
+
+                    // Agrego la venta a la planilla del dia
+                    fwrite(&venta, sizeof(Comanda), 1, archivoDia);
+
+                    cout << "Venta cargada. Comision: " << venta.comision << endl;
                 }
+            } else {
+                cout << "Producto no encontrado." << endl;
             }
         }
 
-        printf("\n¿Desea cargar otra venta? (1=Si / 0=No): ");
-        if (scanf("%d", &continuar) != 1) {
-            continuar = 0;
-        }
+        cout << "\nDesea cargar otra venta? (1=Si / 0=No): ";
+        cin >> continuar;
     }
 
     fclose(archivoDia);
     fclose(inventario);
 
-    // Llamamos a la función modularizada para ordenar
-    ordenarPlanillaDiaria(nombreArchivo);
-
-    printf("\nPlanilla del dia '%s' cerrada y ordenada correctamente.\n", nombreArchivo);
+    ordenarPlanilla(nombreArchivo);
 
     return 0;
 }
