@@ -26,7 +26,6 @@ struct Mozo {
 };
 
 const int clave_k = 5;              // desplazamiento de la "encriptacion"
-const int MAX_VENTAS = 1000;        // tamaño fisico del array
 const float PORCENTAJE = 0.10f;     // comision del 10%
 
 // Busco al mozo en mozos.dat y verifica su clave.
@@ -101,30 +100,32 @@ bool buscarProducto(FILE *inventario, int codigo, Producto &producto, long &posi
     return false;
 }
 
-// Leo la planilla del dia, y lo ordeno por mozo y lo reescribe.
+// Leo la planilla del dia, y lo ordeno por mozo y lo reescribe. 
 void ordenarPlanilla(const char *nombreArchivo) {
-    Comanda ventas[MAX_VENTAS];
-    int cantidad = 0;               
-
     FILE *archivo = fopen(nombreArchivo, "rb");
     if (archivo == NULL) {
         cout << "No se pudo abrir la planilla para ordenar." << endl;
         return;
     }
 
-    // Paso todo el archivo al array
-    while (cantidad < MAX_VENTAS &&
-           fread(&ventas[cantidad], sizeof(Comanda), 1, archivo) == 1) {
-        cantidad++;
+    fseek(archivo,0, SEEK_END);
+    long cantidad = ftell(archivo)/sizeof(Comanda);
+    fseek(archivo, 0, SEEK_SET);
+     if (cantidad==0) {
+        fclose(archivo);
+        return;
     }
-    fclose(archivo);
 
-    // Ordenamiento por seleccion
-    for (int i = 0; i < cantidad - 1; i++) {
-        int menor = i;
-        for (int j = i + 1; j < cantidad; j++) {
-            if (ventas[j].idMozo < ventas[menor].idMozo) {
+   Comanda *ventas=new Comanda[cantidad];
+   fread(ventas, sizeof(Comanda), cantidad, archivo);
+   fclose (archivo);
+
+    for(long i = 0; i <cantidad -1 ; i++){
+        long menor = i;
+        for(long j=i+1;j<cantidad;j++){
+            if (ventas[j].idMozo <ventas[menor].idMozo){
                 menor = j;
+
             }
         }
         Comanda aux = ventas[i];
@@ -136,6 +137,8 @@ void ordenarPlanilla(const char *nombreArchivo) {
     archivo = fopen(nombreArchivo, "wb");
     fwrite(ventas, sizeof(Comanda), cantidad, archivo);
     fclose(archivo);
+
+    delete[] ventas; 
 
     cout << "Planilla ordenada por mozo." << endl;
 }

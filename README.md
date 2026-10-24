@@ -77,7 +77,7 @@ g++ -O2 -o resumen       resumen.cpp
 * **Validación de cantidad y stock:** comprueba que la cantidad ingresada sea mayor que cero y que no supere el stock disponible.
 * **Cálculo de comisión:** calcula la comisión del mozo aplicando el 10 % al precio del producto multiplicado por la cantidad vendida.
 * **Actualización de stock y guardado:** descuenta del inventario la cantidad vendida y guarda los datos de la venta en la planilla del día.
-* **Cierre y ordenamiento:** cuando el usuario termina de cargar ventas, cierra los archivos y ejecuta `ordenarPlanilla`, que lee las comandas, las ordena por número de mozo mediante el método de selección y vuelve a guardarlas en el archivo.
+* **Cierre y ordenamiento:** cuando el usuario termina de cargar ventas, cierra los archivos y ejecuta `ordenarPlanilla`, que lee las comandas con `fseek` y `ftell`, las carga en un array dinamico `new[]`, las ordena por mozo por el metodo de seleccion, reescribe el archivo y libera la memoria `delete[]`
 
 ### Cierre.cpp
 
