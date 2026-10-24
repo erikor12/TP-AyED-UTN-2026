@@ -101,9 +101,28 @@ bool crearArchivoMozos()
             nuevo.totalComision = comandaLeida.comision;   // arranca con la comision de su 1er ticket
             // crea su contraseña inicial
             char clave_texto[10];
-            sprintf(clave_texto, "%d", nuevo.idMozo);
-            encriptarClave(clave_texto, nuevo.password, clave_k); // nro de idMozo guardado en la variable
-
+    int auxiliarId=nuevo.idMozo;//para no perder el valor incremental
+    int j=0;
+    
+    if(auxiliarId==0){ //el Id es 0?
+        clave_texto[j++]='0';
+    } else{
+        char alReves[10];
+        int k=0;
+        while(auxiliarId>0){
+        alReves[k] = (auxiliarId%10) + '0';//lo pasa a char 
+        auxiliarId = auxiliarId/10;
+        k++;
+        }
+        //da vuelta los digitos para que queden en orden
+        while(k>0){
+            k--;
+            clave_texto[j] = alReves[k];
+            j++;
+        }
+    }
+    clave_texto[j]='\0'; //fin de la cadena.
+    encriptarClave(clave_texto,nuevo.password,clave_k);//nro de idMozo guardado en la variable
             listaMozos[cantidadMozos] = nuevo;
             cantidadMozos++; // la cantiaad de mozos aunmenta de uno en uno
         }
