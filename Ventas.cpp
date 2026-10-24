@@ -26,7 +26,6 @@ struct Mozo {
 };
 
 const int clave_k = 5;              // desplazamiento de la "encriptacion"
-const int MAX_VENTAS = 1000;        // tamaño fisico del array
 const float PORCENTAJE = 0.10f;     // comision del 10%
 
 // Busco al mozo en mozos.dat y verifica su clave.
@@ -120,12 +119,12 @@ void ordenarPlanilla(const char *nombreArchivo) {
    Comanda *ventas=new Comanda[cantidad];
    fread(ventas, sizeof(Comanda), cantidad, archivo);
    fclose (archivo);
-    return;
 
     for(long i = 0; i <cantidad -1 ; i++){
         long menor = i;
         for(long j=i+1;j<cantidad;j++){
             if (ventas[j].idMozo <ventas[menor].idMozo){
+                menor = j;
 
             }
         }
